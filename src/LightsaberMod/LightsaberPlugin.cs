@@ -22,6 +22,8 @@ namespace LightsaberMod
 
         public static ConfigEntry<float> DamageScale;
         public static ConfigEntry<bool> UseDurability;
+        public static ConfigEntry<string> PowerReference;
+        public static ConfigEntry<float> UpgradeScaling;
         public static ConfigEntry<float> UnlockSkillStep;
         public static ConfigEntry<bool> LightningDarkSideOnly;
         public static ConfigEntry<bool> JarKaiEnabled;
@@ -77,8 +79,12 @@ namespace LightsaberMod
 
             // Item stats are baked into the prefabs at startup, before any server sync could
             // arrive, so these stay local. Keep them identical across players.
+            PowerReference = Config.Bind("Balance", "PowerReference", "SwordMistwalker",
+                "Vanilla weapon prefab whose damage and block power a quality 1 lightsaber matches (Mistlands tier by default). Restart required.");
             DamageScale = Config.Bind("Balance", "DamageScale", 1f,
-                new ConfigDescription("Multiplier on all lightsaber base damage. Restart required.", new AcceptableValueRange<float>(0.1f, 5f)));
+                new ConfigDescription("Multiplier on lightsaber damage relative to PowerReference. Restart required.", new AcceptableValueRange<float>(0.1f, 5f)));
+            UpgradeScaling = Config.Bind("Balance", "UpgradeScaling", 0.08f,
+                new ConfigDescription("Damage and block power added per quality level, as a share of the base. 0.08 puts quality 4 at roughly early-Ashlands strength. Restart required.", new AcceptableValueRange<float>(0f, 0.5f)));
             UseDurability = Config.Bind("Balance", "UseDurability", false,
                 "If false, lightsabers never wear out. Restart required.");
             UnlockSkillStep = Config.Bind("Forms", "UnlockSkillStep", 5f,
@@ -104,8 +110,8 @@ namespace LightsaberMod
             ThrowRange = Config.Bind("Saber Throw", "Range", 14f,
                 new ConfigDescription("How far the thrown saber flies before returning, in metres.", new AcceptableValueRange<float>(4f, 30f), synced));
 
-            LightningDamage = Config.Bind("Force", "LightningDamage", 6f,
-                new ConfigDescription("Lightning damage per tick (5 ticks a second) to the first target, before form modifiers.", new AcceptableValueRange<float>(0f, 50f), synced));
+            LightningDamage = Config.Bind("Force", "LightningDamagePerTick", 0.1f,
+                new ConfigDescription("Lightning damage per tick (5 ticks a second) to the first target, as a share of the held saber's damage.", new AcceptableValueRange<float>(0f, 1f), synced));
             LightningStaminaPerSecond = Config.Bind("Force", "LightningStaminaPerSecond", 15f,
                 new ConfigDescription("Stamina drained per second while channelling Force lightning.", new AcceptableValueRange<float>(0f, 100f), synced));
             LeapStaminaCost = Config.Bind("Force", "LeapStaminaCost", 15f,

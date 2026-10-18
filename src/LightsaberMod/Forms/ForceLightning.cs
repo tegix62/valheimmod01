@@ -139,7 +139,8 @@ namespace LightsaberMod.Forms
 
         private static void Strike(Player player, SaberForm form, List<Character> targets)
         {
-            float damage = LightsaberPlugin.LightningDamage.Value * form.ForcePower;
+            // Scales with the saber in hand, so the lightning keeps pace with your gear.
+            float damage = PowerScaling.CurrentTotal(player.GetCurrentWeapon()) * LightsaberPlugin.LightningDamage.Value * form.ForcePower;
             ForcePowers.Channeling = true;
             try
             {

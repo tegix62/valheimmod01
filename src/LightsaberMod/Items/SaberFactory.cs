@@ -52,6 +52,7 @@ namespace LightsaberMod.Items
 
         public static void RegisterItems()
         {
+            PowerScaling.Resolve();
             AddHilt();
             foreach (KyberColor color in KyberColor.All)
                 AddCrystal(color);
@@ -68,14 +69,14 @@ namespace LightsaberMod.Items
                 // Token deliberately avoids the saber prefix so a hilt in hand never counts as a saber.
                 Name = "$item_kyberhilt",
                 Description = "$item_kyberhilt_desc",
-                CraftingStation = CraftingStations.Forge,
-                MinStationLevel = 2,
+                // Mistlands tier: built at the Black Forge from refined eitr and a black core.
+                CraftingStation = CraftingStations.BlackForge,
+                MinStationLevel = 1,
                 Requirements = new[]
                 {
-                    new RequirementConfig("Iron", 4),
-                    new RequirementConfig("Silver", 2),
-                    new RequirementConfig("LeatherScraps", 2),
-                    new RequirementConfig("SurtlingCore", 1),
+                    new RequirementConfig("BlackMetal", 4),
+                    new RequirementConfig("Eitr", 2),
+                    new RequirementConfig("BlackCore", 1),
                 },
             };
             var item = new CustomItem(HiltPrefab, "Iron", config);
@@ -105,14 +106,15 @@ namespace LightsaberMod.Items
             {
                 Name = "$" + token,
                 Description = "$" + token + "_desc",
-                CraftingStation = CraftingStations.Forge,
-                RepairStation = CraftingStations.Forge,
-                MinStationLevel = 3,
+                CraftingStation = CraftingStations.BlackForge,
+                RepairStation = CraftingStations.BlackForge,
+                MinStationLevel = 2,
                 Requirements = new[]
                 {
                     new RequirementConfig(HiltPrefab, hilt.Hilts, 0, true),
                     new RequirementConfig(color.CrystalPrefab, hilt.Crystals, 0, true),
-                    new RequirementConfig("Silver", 0, 4, true),
+                    new RequirementConfig("BlackMetal", 0, 4, true),
+                    new RequirementConfig("Eitr", 0, 2, true),
                 },
             };
 
@@ -124,11 +126,7 @@ namespace LightsaberMod.Items
             }
 
             ItemDrop.ItemData.SharedData shared = item.ItemDrop.m_itemData.m_shared;
-            float scale = LightsaberPlugin.DamageScale.Value;
-            shared.m_damages = new HitData.DamageTypes { m_slash = hilt.Slash * scale, m_fire = hilt.Fire * scale };
-            shared.m_damagesPerLevel = new HitData.DamageTypes { m_slash = hilt.SlashPerLevel * scale, m_fire = hilt.FirePerLevel * scale };
-            shared.m_blockPower = hilt.BlockPower;
-            shared.m_blockPowerPerLevel = 4;
+            PowerScaling.Apply(shared, hilt);
             shared.m_deflectionForce = hilt.Deflection;
             shared.m_timedBlockBonus = hilt.ParryBonus;
             shared.m_weight = hilt.DoubleBladed ? 1.6f : 0.9f;

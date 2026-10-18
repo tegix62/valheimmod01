@@ -4,26 +4,32 @@ Craft lightsabers from kyber crystals and fight in all seven classic lightsaber 
 
 ## What's in it
 
-### Crafting chain (all at the Forge)
+### Crafting chain
 
-| Item | Recipe | Forge level |
+Lightsabers are a **Mistlands-tier** weapon. Crystals are attuned at the Forge from earlier-biome materials, but the hilt and the sabers need the Black Forge.
+
+| Item | Recipe | Station |
 |---|---|---|
-| Emitter Hilt | 4 Iron, 2 Silver, 2 Leather scraps, 1 Surtling core | 2 |
+| Emitter Hilt | 4 Black metal, 2 Refined eitr, 1 Black core | Black Forge 1 |
 | Blue Kyber Crystal | Crystal + 5 Blueberries | 1 |
 | Green Kyber Crystal | Crystal + 2 Guck | 1 |
 | Yellow Kyber Crystal | Crystal + 5 Dandelion | 1 |
 | Purple Kyber Crystal | Crystal + 5 Thistle | 1 |
 | Red Kyber Crystal | Crystal + 3 Bloodbag + 1 Surtling core | 1 |
 | White Kyber Crystal | Red Kyber Crystal + 3 Ectoplasm (a purified red crystal) | 1 |
-| Dark Kyber Crystal | Crystal + 5 Obsidian + 2 Surtling core | 1 |
+| Dark Kyber Crystal | Crystal + 5 Obsidian + 2 Surtling core | Forge 1 |
 
-Combine hilts and a crystal at a level 3 Forge. Every chassis comes in all seven colours (21 weapons). Upgrades cost 4 Silver per level, up to quality 4.
+(All kyber crystals are made at Forge level 1.)
 
-| Chassis | Needs | Moveset / skill | Base damage |
-|---|---|---|---|
-| Lightsaber | 1 hilt, 1 crystal | Iron sword / Swords | 55 slash + 25 fire |
-| Saberstaff (double-bladed) | 2 hilts, 2 crystals | Iron atgeir / Polearms | 50 slash + 22 fire |
-| Shoto | 1 hilt, 1 crystal | Silver knife / Knives | 34 slash + 16 fire |
+Combine hilts and a crystal at a level 2 Black Forge. Every chassis comes in all seven colours (21 weapons). Upgrades cost 4 Black metal and 2 Refined eitr per level, up to quality 4.
+
+**Power.** At startup the mod reads **Mistwalker's** damage and block power from the game, and a quality 1 lightsaber matches it. Each upgrade adds 8% of that, so quality 4 is about 24% stronger, roughly early-Ashlands sword territory. Damage is 80% slash and 20% fire. The fire share is kept low because much of the Ashlands resists fire. The BepInEx log prints the numbers it matched. Change the reference weapon, overall scale or per-level growth with `PowerReference`, `DamageScale` and `UpgradeScaling`.
+
+| Chassis | Needs | Moveset / skill | Damage vs. Mistwalker | Block vs. Mistwalker |
+|---|---|---|---|---|
+| Lightsaber | 1 hilt, 1 crystal | Iron sword / Swords | 100% | 100% |
+| Saberstaff (double-bladed) | 2 hilts, 2 crystals | Iron atgeir / Polearms | 100% | 110% |
+| Shoto | 1 hilt, 1 crystal | Silver knife / Knives | 55% (knives are fast and backstab hard) | 50% |
 
 Lightsabers glow (each blade carries its own coloured light), don't wear out by default, and parry better than vanilla blades. Models are built in code from the hilt and blade shapes, so the mod needs no asset bundle. Inventory icons are rendered from those models.
 
@@ -111,7 +117,7 @@ These only work with a lightsaber drawn. Push and Pull share a 4 s cooldown and 
 * **G**: Force Push. A 70° cone out to 9 m that knocks back and staggers enemies.
 * **Shift+G**: Force Pull. Drags enemies in that cone toward you.
 * **T**: Saber Throw. The blade spins out along your aim (14 m, 20 stamina), cuts every enemy it passes on the way out *and* on the way back, then returns to your hand. It turns back early if it hits a wall. Shien / Djem So throws hit 50% harder. You can't swing while it's in flight.
-* **Hold R**: Force Lightning. Arcs from your off hand into the nearest enemy in front (10 m), then chains to up to two more within 5 m, each jump weaker than the last. It deals lightning damage five times a second and drains 15 stamina per second. It's a dark-side power, so by default only Form VII (Juyo) can call it (`LightningDarkSideOnly`). When there's nothing to hit, the arcs crackle into the air.
+* **Hold R**: Force Lightning. Arcs from your off hand into the nearest enemy in front (10 m), then chains to up to two more within 5 m, each jump weaker than the last. Each tick (five a second) deals 10% of your saber's damage as lightning to the first target, and it drains 15 stamina per second. It's a dark-side power, so by default only Form VII (Juyo) can call it (`LightningDarkSideOnly`). When there's nothing to hit, the arcs crackle into the air.
 * **Jump again in mid-air**: Force Leap. Launches you forward and up (15 stamina). Landing from a leap triggers a **Leaping Strike**, a ground slam that damages and knocks back every enemy within 3.5 m. Leaps never cause fall damage. Ataru leaps 40% further, slams 40% harder and pays half the stamina.
 
 All keys, costs and balance values are in `BepInEx/config/tegix62.LightsaberMod.cfg`. Form and Force settings sync from the server's admin config.

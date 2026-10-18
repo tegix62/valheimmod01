@@ -10,7 +10,9 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] No `No vanilla weapon found for ...` warnings (a moveset donor name is wrong).
 
 ## 2. Items
-- [ ] At a level 3 Forge, the recipes for Emitter Hilt, all 7 crystals and all 21 sabers show up.
+- [ ] The log shows `Lightsaber power matched to SwordMistwalker: ...`. If it fell back to SwordBlackmetal or the 110 default, the Mistwalker prefab name differs in your game version: set `PowerReference` to the right name.
+- [ ] The crystals show up at the Forge. The Emitter Hilt and all 21 sabers show up at the Black Forge (level 2 for sabers).
+- [ ] A quality 1 lightsaber's tooltip damage roughly matches Mistwalker's.
 - [ ] Inventory icons show the saber, not an iron sword. A sword icon means the icon render failed (a debug log line says why).
 - [ ] Held and dropped sabers show the hilt and glowing blade, with no leftover vanilla sword mesh.
 - [ ] The blade points out of the hand along the hilt. If it's sideways, note which chassis (saber, staff or shoto).
