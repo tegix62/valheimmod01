@@ -1,6 +1,6 @@
 # In-game test checklist
 
-Nothing here has been run in Valheim yet. These are the checks most likely to turn up problems, in the order worth doing them. Testing alone in a local world with `devcommands` is fastest (`spawn LightsaberMod_...` won't work; use `spawn Lightsaber_saber_blue`, `spawn KyberCrystal_red`, `spawn LightsaberEmitterHilt`).
+Nothing here has been run in Valheim yet. These are the checks most likely to turn up problems, in the order worth doing them. Testing alone in a local world with `devcommands` is fastest. Spawn items by prefab name, e.g. `spawn Lightsaber_saber_blue`, `spawn Lightsaber_staff_red`, `spawn Lightsaber_shoto_green`, `spawn KyberCrystal_white`, `spawn LightsaberEmitterHilt`.
 
 Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn't find or hook.
 

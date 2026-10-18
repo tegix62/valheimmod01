@@ -132,14 +132,15 @@ namespace LightsaberMod
 
             FormManager.Tick(player);
 
-            if (!player.TakeInput())
+            bool canInput = player.TakeInput();
+            ForceLeap.Update(player, canInput);
+            if (!canInput)
             {
                 ForceLightning.Stop();
                 return;
             }
 
             ForceLightning.Update(player, _lightningKey.Value.IsPressed());
-            ForceLeap.Update(player);
 
             // Shifted variants first, so rebinding either key to a plain one can't fire both.
             if (_prevFormKey.Value.IsDown()) FormManager.Cycle(player, -1);

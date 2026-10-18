@@ -30,6 +30,7 @@ namespace LightsaberMod.Items
         private float _extended = 1f;
         private Vector3 _lastTip, _lastOwner;
         private float _swingSpeed;
+        private int _ownerChecksLeft;
 
         private void Awake()
         {
@@ -48,16 +49,26 @@ namespace LightsaberMod.Items
 
         private void OnEnable()
         {
-            _owner = GetComponentInParent<Character>();
+            _owner = null;
             SetTrails(false);
+            // Lying on the ground, on an item stand or in an icon render: lit, silent, still,
+            // until (and unless) a hand turns up above us.
+            SetExtended(1f);
+            // The model may be instantiated before it's parented to a hand, so keep looking
+            // for an owner for a few frames rather than deciding once.
+            _ownerChecksLeft = 5;
+            TryFindOwner();
+        }
 
-            if (_owner == null)
-            {
-                // Lying on the ground, on an item stand or in an icon render: lit, silent, still.
-                SetExtended(1f);
-                return;
-            }
+        private void TryFindOwner()
+        {
+            _ownerChecksLeft--;
+            _owner = GetComponentInParent<Character>();
+            if (_owner != null) Ignite();
+        }
 
+        private void Ignite()
+        {
             SetExtended(0f);
             if (_tip != null) _lastTip = _tip.position;
             _lastOwner = _owner.transform.position;
@@ -83,7 +94,11 @@ namespace LightsaberMod.Items
 
         private void LateUpdate()
         {
-            if (_owner == null) return;
+            if (_owner == null)
+            {
+                if (_ownerChecksLeft > 0) TryFindOwner();
+                if (_owner == null) return;
+            }
 
             if (_extended < 1f)
                 SetExtended(Mathf.MoveTowards(_extended, 1f, Time.deltaTime / IgniteSeconds));

@@ -37,6 +37,13 @@ namespace LightsaberMod.Forms
         /// <summary>Call every frame with whether the key is held.</summary>
         public static void Update(Player player, bool held)
         {
+            if (_active && (_fx == null || _fxOwner != player))
+            {
+                // Relogged or respawned mid-channel: the effects went with the old body.
+                _active = false;
+                Targets.Clear();
+            }
+
             if (!held) _exhausted = false;
             if (!held || _exhausted || !CanChannel(player))
             {

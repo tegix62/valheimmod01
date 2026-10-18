@@ -23,7 +23,8 @@ namespace LightsaberMod.Forms
         private static float _leapStartedAt;
         private static Player _player;
 
-        public static void Update(Player player)
+        /// <param name="canInput">False while a menu or chat has focus: landing still resolves, no new leap starts.</param>
+        public static void Update(Player player, bool canInput)
         {
             if (player != _player)
             {
@@ -52,7 +53,7 @@ namespace LightsaberMod.Forms
                 return;
             }
 
-            if (_usedThisAirtime || !JumpPressed() || player.IsSwimming() || !SaberFactory.IsSaber(player.GetCurrentWeapon()))
+            if (!canInput || _usedThisAirtime || !JumpPressed() || player.IsSwimming() || !SaberFactory.IsSaber(player.GetCurrentWeapon()))
                 return;
 
             SaberForm form = FormManager.Current;
