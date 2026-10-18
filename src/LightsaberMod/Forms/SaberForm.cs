@@ -39,6 +39,7 @@ namespace LightsaberMod.Forms
         public float StaminaRegen = 1f;
         public float ForcePower = 1f;
         public float ForceCost = 1f;
+        public float ThrowPower = 1f;     // saber throw damage
 
         public string StatusEffectName => "SE_LightsaberForm_" + Id;
 
@@ -79,8 +80,8 @@ namespace LightsaberMod.Forms
             {
                 Number = 5, Id = "shien", Name = "Shien / Djem So", Epithet = "Way of the Krayt Dragon",
                 Summary = "Absorb, then strike back. Blocks fuel your counter and hurl bolts home.",
-                Tooltip = "Blocking deflects ranged attacks back at the shooter (75%)\nNext hit after a block: +50% damage\n+15% damage, +50% stagger\n-10% damage taken",
-                DeflectBolts = true, RedirectBolts = 0.75f, RiposteBonus = 0.5f,
+                Tooltip = "Blocking deflects ranged attacks back at the shooter (75%)\nNext hit after a block: +50% damage\nSaber throw +50% damage\n+15% damage, +50% stagger\n-10% damage taken",
+                DeflectBolts = true, RedirectBolts = 0.75f, RiposteBonus = 0.5f, ThrowPower = 1.5f,
                 DamageDealt = 1.15f, Stagger = 1.5f, DamageTaken = 0.9f,
             },
             new SaberForm

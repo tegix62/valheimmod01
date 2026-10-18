@@ -27,6 +27,15 @@ Combine hilts and a crystal at a level 3 Forge. Every chassis comes in all seven
 
 Lightsabers glow (each blade carries its own coloured light), don't wear out by default, and parry better than vanilla blades. Models are built in code from the hilt and blade shapes, so the mod needs no asset bundle. Inventory icons are rendered from those models.
 
+### Feel and sound
+
+* **Ignition:** drawing a saber grows the blade out of the emitter. Sheathing it plays the retract sound.
+* **Hum:** a low beating hum that rises in pitch and volume as the blade swings.
+* **Trails:** fast swings leave a glowing band in the blade's colour.
+* **Clash:** blocking with a saber crackles.
+
+All sounds are synthesised in code at startup and play through Valheim's SFX volume. Other players' sabers hum and glow for you too.
+
 ### The seven forms
 
 Press **H** to cycle forms (**Shift+H** goes back). The active form shows on the status bar and only works while a lightsaber is in hand. Form *N* unlocks at weapon skill `(N-1) × 5` with the held saber's skill (configurable, or set to 0 to unlock all).
@@ -63,6 +72,7 @@ These only work with a lightsaber drawn. They share a 4 s cooldown and cost 25 s
 
 * **G**: Force Push. A 70° cone out to 9 m that knocks back and staggers enemies.
 * **Shift+G**: Force Pull. Drags enemies in that cone toward you.
+* **T**: Saber Throw. The blade spins out along your aim (14 m, 20 stamina), cuts every enemy it passes on the way out *and* on the way back, then returns to your hand. It turns back early if it hits a wall. Shien / Djem So throws hit 50% harder. You can't swing while it's in flight.
 
 All keys, costs and balance values are in `BepInEx/config/tegix62.LightsaberMod.cfg`. Form and Force settings sync from the server's admin config.
 
@@ -96,13 +106,17 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Forms/FormMoveset.cs` | Data for each form's techniques and the vanilla attacks they borrow |
 | `Forms/MovesetManager.cs` | Builds those attacks and swaps them onto the held saber |
 | `Forms/ForcePowers.cs` | Push and Pull |
+| `Forms/SaberThrow.cs` | The thrown, returning saber |
+| `Items/SaberBlade.cs` | Per-model ignition, hum, swing trails and retract |
+| `Items/SaberAudio.cs` | Procedurally generated sounds |
 | `Patches/CombatPatches.cs` | Harmony hooks: outgoing damage (`Character.Damage`), incoming damage and deflection (`Character.RPC_Damage`), blocks (`Humanoid.BlockAttack`), attack stamina (`Attack.GetAttackStamina`), attack speed (`CharacterAnimEvent`) |
 | `Util/Compat.cs` | Calls game methods by reflection where their signatures differ between Valheim versions |
 
 ## Status and known limitations
 
 * **Not yet tested in-game.** The project compiles against Jötunn 2.30.2, but the game's own assemblies were stubbed for that build. Report anything that misbehaves along with `BepInEx/LogOutput.log`.
-* Blades are simple glowing cylinders. There's no ignition animation and no hum yet.
+* Blades are simple glowing cylinders, and the synthesised sounds are approximations of the films' sound design.
+* Other players see a thrower's hand go empty, not the blade flying. The throw's damage still reaches everyone normally.
 * Redirected bolts damage the shooter directly; they don't fly back as projectiles.
 * Movesets play other weapons' animations while you hold a saber. If one of them doesn't trigger while a one-handed weapon is equipped, that technique will look wrong; the log names which vanilla attack each move uses.
 * Jar'Kai (dual-wielding sabers) isn't implemented. Valheim's off-hand slot is for shields.

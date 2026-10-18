@@ -194,6 +194,8 @@ namespace LightsaberMod.Items
                 AddHiltPieces(root.transform, start, hilt.HiltLength);
                 AddBlade(root.transform, start + hilt.HiltLength, hilt.BladeLength, blade, color, +1);
             }
+
+            root.AddComponent<SaberBlade>();
         }
 
         /// <summary>
@@ -246,24 +248,61 @@ namespace LightsaberMod.Items
 
         private static void AddBlade(Transform parent, float from, float length, Material mat, KyberColor color, int sign)
         {
-            float start = sign > 0 ? from : from - length;
-            Cylinder(parent, "blade", start, length, 0.022f, mat);
+            // Everything hangs off a pivot at the emitter, so SaberBlade can grow the blade out
+            // of the hilt on ignition by scaling one transform.
+            var pivot = new GameObject(SaberBlade.PivotName).transform;
+            pivot.SetParent(parent, false);
+            pivot.localPosition = new Vector3(0, from, 0);
+            if (sign < 0) pivot.localRotation = Quaternion.Euler(180f, 0f, 0f);
+
+            Cylinder(pivot, "blade", 0f, length, 0.022f, mat);
 
             if (color.Id == "black")
             {
                 // The Darksaber's pale crackling edge.
-                Cylinder(parent, "blade_edge", start, length, 0.026f, MakeMaterial(color.Glow * 0.2f, 0.9f, color.Glow * 1.2f), 0.18f);
+                Cylinder(pivot, "blade_edge", 0f, length, 0.026f, MakeMaterial(color.Glow * 0.2f, 0.9f, color.Glow * 1.2f), 0.18f);
             }
 
             var lightObj = new GameObject("blade_light");
-            lightObj.transform.SetParent(parent, false);
-            lightObj.transform.localPosition = new Vector3(0, start + length / 2f, 0);
+            lightObj.transform.SetParent(pivot, false);
+            lightObj.transform.localPosition = new Vector3(0, length / 2f, 0);
             Light light = lightObj.AddComponent<Light>();
             light.type = LightType.Point;
             light.color = color.Glow;
             light.range = 3.2f;
             light.intensity = 1.6f;
             light.shadows = LightShadows.None;
+
+            // Trail from the inner third of the blade to the tip, so swings leave a band of light.
+            var tip = new GameObject(SaberBlade.TipName);
+            tip.transform.SetParent(pivot, false);
+            tip.transform.localPosition = new Vector3(0, length * 0.65f, 0);
+            TrailRenderer trail = tip.AddComponent<TrailRenderer>();
+            trail.time = 0.12f;
+            trail.minVertexDistance = 0.04f;
+            trail.widthMultiplier = length * 0.7f;
+            trail.widthCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 0.2f));
+            trail.alignment = LineAlignment.View;
+            trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            trail.receiveShadows = false;
+            trail.emitting = false;
+            trail.sharedMaterial = TrailMaterial();
+            Color trailColor = color.Id == "black" ? color.Glow * 0.6f : color.Blade;
+            trail.colorGradient = new Gradient
+            {
+                colorKeys = new[] { new GradientColorKey(Color.Lerp(trailColor, Color.white, 0.3f), 0f), new GradientColorKey(trailColor, 1f) },
+                alphaKeys = new[] { new GradientAlphaKey(0.55f, 0f), new GradientAlphaKey(0f, 1f) },
+            };
+        }
+
+        private static Material _trailMaterial;
+
+        private static Material TrailMaterial()
+        {
+            if (_trailMaterial != null) return _trailMaterial;
+            Shader shader = Shader.Find("Legacy Shaders/Particles/Additive") ?? Shader.Find("Particles/Additive") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
+            _trailMaterial = new Material(shader);
+            return _trailMaterial;
         }
 
         private static GameObject Cylinder(Transform parent, string name, float start, float length, float radius, Material mat, float flatten = 1f)

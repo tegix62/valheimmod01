@@ -1,6 +1,7 @@
 using System.Reflection;
 using HarmonyLib;
 using LightsaberMod.Forms;
+using LightsaberMod.Items;
 using LightsaberMod.Util;
 using UnityEngine;
 
@@ -95,6 +96,8 @@ namespace LightsaberMod.Patches
             SaberForm form = FormManager.ActiveFor(__instance);
             if (form == null) return;
 
+            SaberAudio.PlayAt(SaberAudio.Clash, __instance.GetCenterPoint(), 0.9f, Random.Range(0.9f, 1.1f));
+
             if (form.BlockStaminaRefund > 0)
                 Compat.Call(__instance, "AddStamina", form.BlockStaminaRefund);
             FormManager.ArmRiposte(form);
@@ -162,10 +165,12 @@ namespace LightsaberMod.Patches
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.StartAttack))]
     internal static class StartAttackPatch
     {
-        private static void Prefix(Humanoid __instance, bool secondaryAttack)
+        private static bool Prefix(Humanoid __instance, bool secondaryAttack)
         {
-            if (__instance is Player player && player == Player.m_localPlayer)
-                MovesetManager.BeforeAttack(player, secondaryAttack);
+            if (!(__instance is Player player) || player != Player.m_localPlayer) return true;
+            if (SaberThrow.InFlight) return false; // nothing in hand to swing
+            MovesetManager.BeforeAttack(player, secondaryAttack);
+            return true;
         }
 
         private static void Postfix(Humanoid __instance, bool secondaryAttack, bool __result)

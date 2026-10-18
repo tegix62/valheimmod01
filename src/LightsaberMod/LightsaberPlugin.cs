@@ -26,11 +26,16 @@ namespace LightsaberMod
         public static ConfigEntry<float> ForceCooldown;
         public static ConfigEntry<int> SavedForm;
         public static ConfigEntry<bool> UseFormMovesets;
+        public static ConfigEntry<float> SoundVolume;
+        public static ConfigEntry<bool> ShowTrails;
+        public static ConfigEntry<float> ThrowStaminaCost;
+        public static ConfigEntry<float> ThrowRange;
 
         private ConfigEntry<KeyboardShortcut> _nextFormKey;
         private ConfigEntry<KeyboardShortcut> _prevFormKey;
         private ConfigEntry<KeyboardShortcut> _forcePushKey;
         private ConfigEntry<KeyboardShortcut> _forcePullKey;
+        private ConfigEntry<KeyboardShortcut> _throwKey;
 
         private Harmony _harmony;
 
@@ -71,10 +76,21 @@ namespace LightsaberMod
             ForceCooldown = Config.Bind("Force", "Cooldown", 4f,
                 new ConfigDescription("Seconds between Force powers.", new AcceptableValueRange<float>(0f, 60f), synced));
 
+            ThrowStaminaCost = Config.Bind("Saber Throw", "StaminaCost", 20f,
+                new ConfigDescription("Stamina cost of throwing your lightsaber.", new AcceptableValueRange<float>(0f, 100f), synced));
+            ThrowRange = Config.Bind("Saber Throw", "Range", 14f,
+                new ConfigDescription("How far the thrown saber flies before returning, in metres.", new AcceptableValueRange<float>(4f, 30f), synced));
+
+            SoundVolume = Config.Bind("Effects", "SoundVolume", 0.6f,
+                new ConfigDescription("Volume of lightsaber hum, ignition and clash sounds. 0 mutes them.", new AcceptableValueRange<float>(0f, 1f)));
+            ShowTrails = Config.Bind("Effects", "ShowTrails", true, "Draw glowing trails behind fast swings.");
+
             _nextFormKey = Config.Bind("Controls", "NextForm", new KeyboardShortcut(KeyCode.H), "Switch to the next lightsaber form.");
             _prevFormKey = Config.Bind("Controls", "PreviousForm", new KeyboardShortcut(KeyCode.H, KeyCode.LeftShift), "Switch to the previous lightsaber form.");
             _forcePushKey = Config.Bind("Controls", "ForcePush", new KeyboardShortcut(KeyCode.G), "Force Push the enemies in front of you.");
             _forcePullKey = Config.Bind("Controls", "ForcePull", new KeyboardShortcut(KeyCode.G, KeyCode.LeftShift), "Force Pull the enemies in front of you.");
+
+            _throwKey = Config.Bind("Controls", "SaberThrow", new KeyboardShortcut(KeyCode.T), "Throw your lightsaber; it returns to your hand.");
 
             SavedForm = Config.Bind("State", "LastForm", 0, "Last selected form (0 = Shii-Cho ... 6 = Juyo). Managed by the mod.");
         }
@@ -108,6 +124,8 @@ namespace LightsaberMod
 
             if (_forcePullKey.Value.IsDown()) ForcePowers.Pull(player);
             else if (_forcePushKey.Value.IsDown()) ForcePowers.Push(player);
+
+            if (_throwKey.Value.IsDown()) SaberThrow.Throw(player);
         }
 
         private void OnDestroy()
