@@ -222,7 +222,10 @@ namespace LightsaberMod.Patches
         private static void Postfix(Humanoid __instance, bool secondaryAttack, bool __result)
         {
             if (__result && __instance is Player player && player == Player.m_localPlayer)
+            {
                 MovesetManager.AfterAttack(player, secondaryAttack);
+                Animation.Mocap.MocapPlayer.OnLocalAttack(player, secondaryAttack);
+            }
         }
     }
 }

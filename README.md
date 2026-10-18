@@ -106,6 +106,10 @@ lightsaber_pose save                             # keep your changes (lightsaber
 
 `StanceIntensity` scales all stances (0 turns them off), and `Flourishes` toggles the flips and spins.
 
+### Motion capture from your phone (optional, experimental)
+
+Record a technique with a phone mocap app, export **BVH**, drop it in a `mocap` folder next to the DLL and map it to a form's attack or idle in `mocap/lightsaber_mocap.txt`. The mod retargets it onto your character at runtime, with no Unity or PC needed. Hit timing stays Valheim's. See [docs/MOCAP.md](docs/MOCAP.md).
+
 ### Custom animations (optional)
 
 You can drop an animation bundle and a mapping file next to the DLL to replace the borrowed vanilla swings with your own clips, per form. Everyone in the session sees them. The [Lightsaber Animation Kit](unity/LightsaberAnimKit/README.md) builds both from Mixamo downloads or phone mocap in a few menu clicks. Background is in [docs/ANIMATIONS.md](docs/ANIMATIONS.md). The `lightsaber_clips` console command lists the vanilla clip names to map.
@@ -163,6 +167,7 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Animation/FormAnimations.cs` | Loads the optional animation bundle and swaps each saber-wielder's animator per form |
 | `Animation/ListClipsCommand.cs` | `lightsaber_clips` console command |
 | `Animation/FormPoser.cs`, `PoseLibrary.cs`, `PoseCommand.cs` | Procedural stances and flourishes, and the `lightsaber_pose` tuning command |
+| `Animation/Mocap/` | BVH parsing, runtime humanoid retargeting and per-player playback of motion-capture clips |
 | `unity/LightsaberAnimKit/` | Unity editor tools for building custom animation bundles |
 | `Util/Compat.cs` | Calls game methods by reflection where their signatures differ between Valheim versions |
 
