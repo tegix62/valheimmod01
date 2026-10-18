@@ -124,6 +124,11 @@ namespace LightsaberMod.Forms
             FormMoveset set = FormMoveset.All[FormManager.CurrentIndex];
             SaberMove move = JarKai.Active && set.JarKaiSecondary != null ? set.JarKaiSecondary : set.Secondary;
             player.Message(MessageHud.MessageType.TopLeft, move.Name);
+            if (move.Spin)
+            {
+                Animation.FormPoser.For(player).Play(Animation.FormPoser.Flourish.Spin);
+                Net.NetSync.BroadcastFlourish(player, Animation.FormPoser.Flourish.Spin);
+            }
             if (move.ForcePushOnUse)
                 ForcePowers.Push(player, quiet: true);
         }

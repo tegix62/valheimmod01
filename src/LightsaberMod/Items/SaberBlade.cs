@@ -32,6 +32,13 @@ namespace LightsaberMod.Items
         private float _swingSpeed;
         private int _ownerChecksLeft;
 
+        /// <summary>Whether this player's right hand holds a lightsaber model. Works for remote players too.</summary>
+        public static bool InRightHand(Player player)
+        {
+            GameObject right = LightsaberMod.Util.Compat.GetField<GameObject>(player.GetComponent<VisEquipment>(), "m_rightItemInstance");
+            return right != null && right.activeInHierarchy && right.GetComponentInChildren<SaberBlade>(true) != null;
+        }
+
         private void Awake()
         {
             foreach (Transform t in GetComponentsInChildren<Transform>(true))

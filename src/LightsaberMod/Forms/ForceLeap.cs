@@ -75,6 +75,12 @@ namespace LightsaberMod.Forms
             _usedThisAirtime = true;
             _leaping = true;
             _leapStartedAt = Time.time;
+            if (form.LeapPower > 1f)
+            {
+                // Ataru's leaps are somersaults.
+                Animation.FormPoser.For(player).Play(Animation.FormPoser.Flourish.Flip);
+                Net.NetSync.BroadcastFlourish(player, Animation.FormPoser.Flourish.Flip);
+            }
             SaberAudio.PlayAt(SaberAudio.Ignite, player.GetCenterPoint(), 0.5f, 1.6f);
             player.Message(MessageHud.MessageType.TopLeft, "Force Leap");
         }

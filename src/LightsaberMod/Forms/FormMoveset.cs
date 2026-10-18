@@ -18,6 +18,7 @@ namespace LightsaberMod.Forms
         public float Force = 1f;
         public float Stagger = 1f;
         public bool ForcePushOnUse;      // Niman: the strike carries a Force Push with it
+        public bool Spin;                // the whole body turns a full circle with the strike
     }
 
     /// <summary>A form's primary combo and secondary technique.</summary>
@@ -107,7 +108,7 @@ namespace LightsaberMod.Forms
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Hawk-Bat Swoop", Donors = Knife, DonorSecondary = true,
+                    Name = "Hawk-Bat Swoop", Donors = Knife, DonorSecondary = true, Spin = true,
                     Lore = "A springing strike so fast it lands before the enemy can react.",
                     Damage = 1.35f, Stamina = 1.2f,
                 },
@@ -178,7 +179,7 @@ namespace LightsaberMod.Forms
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Vaapad Whirlwind", Donors = Greatsword, DonorSecondary = true,
+                    Name = "Vaapad Whirlwind", Donors = Greatsword, DonorSecondary = true, Spin = true,
                     Lore = "A ferocious all-in burst channelling the darkness of the duel.",
                     Damage = 1.5f, Stagger = 1.3f, Stamina = 1.4f,
                 },

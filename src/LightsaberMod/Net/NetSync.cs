@@ -18,6 +18,7 @@ namespace LightsaberMod.Net
     {
         private const string ThrowRpc = "LightsaberMod_SaberThrow";
         private const string LightningRpc = "LightsaberMod_Lightning";
+        private const string FlourishRpc = "LightsaberMod_Flourish";
         private const string FormKey = "LightsaberMod_Form";
         private const string JarKaiKey = "LightsaberMod_JarKai";
 
@@ -32,6 +33,7 @@ namespace LightsaberMod.Net
                 if (ZRoutedRpc.instance == null) return;
                 ZRoutedRpc.instance.Register<ZPackage>(ThrowRpc, OnThrow);
                 ZRoutedRpc.instance.Register<ZPackage>(LightningRpc, OnLightning);
+                ZRoutedRpc.instance.Register<ZPackage>(FlourishRpc, OnFlourish);
             }
         }
 
@@ -80,6 +82,25 @@ namespace LightsaberMod.Net
             LightningFx fx = LightningFx.For(caster);
             if (on) fx.Begin(computeTargets: true);
             else fx.End();
+        }
+
+        // ----- Flourishes -----------------------------------------------------------------
+
+        public static void BroadcastFlourish(Player player, Animation.FormPoser.Flourish flourish)
+        {
+            if (ZRoutedRpc.instance == null) return;
+            var pkg = new ZPackage();
+            pkg.Write(player.GetPlayerID());
+            pkg.Write((int)flourish);
+            ZRoutedRpc.instance.InvokeRoutedRPC(Everybody, FlourishRpc, pkg);
+        }
+
+        private static void OnFlourish(long sender, ZPackage pkg)
+        {
+            Player player = FindRemote(pkg.ReadLong());
+            int flourish = pkg.ReadInt();
+            if (player != null)
+                Animation.FormPoser.For(player).Play((Animation.FormPoser.Flourish)flourish);
         }
 
         // ----- Form -----------------------------------------------------------------------
