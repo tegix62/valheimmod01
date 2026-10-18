@@ -1,0 +1,6 @@
+<Project>
+  <!-- Imported before NuGet package props, so Jotunn's Paths.props sees these values
+       whether you build the .sln or the .csproj directly. -->
+  <Import Project="$(MSBuildThisFileDirectory)Environment.props" Condition="Exists('$(MSBuildThisFileDirectory)Environment.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)DoPrebuild.props" Condition="Exists('$(MSBuildThisFileDirectory)DoPrebuild.props')" />
+</Project>

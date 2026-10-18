@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <AssemblyName>LightsaberMod</AssemblyName>
+    <RootNamespace>LightsaberMod</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- Valheim ships its own copies of these; never copy them next to the mod. -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <!-- Game, Unity and BepInEx references must not be copied next to the mod. -->
+    <Reference>
+      <Private>False</Private>
+    </Reference>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <!-- Jotunn's package also wires up references to the game, Unity, BepInEx and Harmony
+         from VALHEIM_INSTALL (see Environment.props.example). -->
+    <PackageReference Include="JotunnLib" Version="2.30.2" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(MOD_DEPLOYPATH)' != '' And Exists('$(MOD_DEPLOYPATH)')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MOD_DEPLOYPATH)\LightsaberMod" />
+    <Message Importance="High" Text="Deployed $(TargetFileName) to $(MOD_DEPLOYPATH)\LightsaberMod" />
+  </Target>
+
+</Project>

@@ -1,0 +1,19 @@
+# Copy next to LightsaberMod.dll as lightsaber_animations.txt, alongside the
+# lightsaber_animations asset bundle.
+#
+# Each rule:   form: VanillaClipName = ClipNameInYourBundle
+# form is one of shiicho, makashi, soresu, ataru, shien, niman, juyo, or * for all.
+# Form-specific rules win over * rules. Lines starting with # are ignored.
+#
+# Run `lightsaber_clips` (or `lightsaber_clips sword`) in the F5 console to list the
+# vanilla clip names. The names below are placeholders: replace them with real ones.
+
+# Every form: a saber-style idle hold instead of the sword's.
+*: VanillaSwordIdle = saber_idle_ready
+
+# Makashi: the borrowed spear thrusts become one-handed fencing lunges.
+makashi: VanillaSpearPoke = makashi_lunge
+
+# Djem So: big two-handed overhead blows.
+shien: VanillaMaceSwing0 = djemso_overhead_0
+shien: VanillaMaceSwing1 = djemso_overhead_1

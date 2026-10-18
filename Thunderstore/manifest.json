@@ -1,0 +1,10 @@
+{
+  "name": "LightsaberMod",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/tegix62/valheimmod01",
+  "description": "Craft lightsabers from kyber crystals and fight in all seven classic lightsaber forms, with Force Push and Pull.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2202",
+    "ValheimModding-Jotunn-2.30.2"
+  ]
+}
