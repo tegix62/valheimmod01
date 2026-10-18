@@ -30,6 +30,7 @@ namespace LightsaberMod.Forms
         private static LightningFx _fx;
         private static float _nextTick;
         private static bool _exhausted; // ran dry: wait for the key to be released before trying again
+        private static bool _warned;    // explained the dark-side restriction for this key press
 
         /// <summary>Call every frame with whether the key is held.</summary>
         public static void Update(Player player, bool held)
@@ -37,7 +38,21 @@ namespace LightsaberMod.Forms
             if (_fx != null && _fx.Caster != player)
                 _fx = null; // relogged or respawned: the effects went with the old body
 
-            if (!held) _exhausted = false;
+            if (!held)
+            {
+                _exhausted = false;
+                _warned = false;
+            }
+
+            if (held && LightsaberPlugin.LightningDarkSideOnly.Value && !FormManager.Current.DarkSide)
+            {
+                if (!_warned)
+                    player.Message(MessageHud.MessageType.Center, "Force lightning answers only to the dark side (Form VII: Juyo)");
+                _warned = true;
+                Stop();
+                return;
+            }
+
             if (!held || _exhausted || !CanChannel(player))
             {
                 Stop();
@@ -124,7 +139,7 @@ namespace LightsaberMod.Forms
 
         private static void Strike(Player player, SaberForm form, List<Character> targets)
         {
-            float damage = LightsaberPlugin.LightningDamage.Value * form.ForcePower * form.LightningPower;
+            float damage = LightsaberPlugin.LightningDamage.Value * form.ForcePower;
             ForcePowers.Channeling = true;
             try
             {

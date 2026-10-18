@@ -27,6 +27,10 @@ namespace LightsaberMod.Forms
         private static float _riposteUntil;
         private static int _nearbyEnemies;
         private static float _nearbyCountedAt = -10f;
+        private static bool _confined;
+        private static float _confinedCheckedAt = -10f;
+        private static int _momentum;
+        private static float _momentumUntil;
 
         public static SaberForm Current => SaberForm.All[_current];
         public static int CurrentIndex => _current;
@@ -44,7 +48,7 @@ namespace LightsaberMod.Forms
                 var se = ScriptableObject.CreateInstance<SE_Stats>();
                 se.name = form.StatusEffectName;
                 se.m_name = form.Title;
-                se.m_tooltip = form.Epithet + "\n" + form.Tooltip + "\n\n" + MovesetManager.Describe(i);
+                se.m_tooltip = form.Epithet + " (" + form.AltName + ")\n" + form.Tooltip + "\n\n" + MovesetManager.Describe(i);
                 se.m_ttl = 0f;
                 se.m_icon = BorrowIcon(IconSources[i]) ?? BorrowIcon("Crystal");
 
@@ -179,9 +183,25 @@ namespace LightsaberMod.Forms
             return count;
         }
 
-        public static void ArmRiposte(SaberForm form)
+        /// <summary>
+        /// Ataru needs room to move: true indoors, in dungeons and under a roof. Falls back to
+        /// "open ground" if the game's cover checks can't be found.
+        /// </summary>
+        public static bool IsConfined(Player player)
         {
-            if (form.RiposteBonus > 0) _riposteUntil = Time.time + 2.5f;
+            if (Time.time - _confinedCheckedAt < 1f) return _confined;
+            _confinedCheckedAt = Time.time;
+            _confined = Compat.Call(player, "InInterior") is bool inside && inside
+                || Compat.CallStatic("Cover", "IsUnderRoof", player.transform.position) is bool roofed && roofed;
+            return _confined;
+        }
+
+        /// <param name="perfectParry">Whether the block landed inside the parry window.</param>
+        public static void ArmRiposte(Player player, SaberForm form, bool perfectParry)
+        {
+            if (form.RiposteBonus <= 0 || (form.RiposteOnParryOnly && !perfectParry)) return;
+            _riposteUntil = Time.time + 2.5f;
+            player.Message(MessageHud.MessageType.TopLeft, form.RiposteName);
         }
 
         /// <summary>Consumes a pending riposte, returning its bonus (0 if none).</summary>
@@ -191,5 +211,19 @@ namespace LightsaberMod.Forms
             _riposteUntil = 0f;
             return form.RiposteBonus;
         }
+
+        /// <summary>Vaapad: the bonus from the current run of hits, which this hit then extends.</summary>
+        public static float TakeMomentum(SaberForm form)
+        {
+            if (form.MomentumPerHit <= 0) return 0f;
+            if (Time.time > _momentumUntil) _momentum = 0;
+            float bonus = Mathf.Min(form.MomentumMax, _momentum * form.MomentumPerHit);
+            _momentum++;
+            _momentumUntil = Time.time + 4f;
+            return bonus;
+        }
+
+        /// <summary>Vaapad: taking a hit breaks the flow.</summary>
+        public static void BreakMomentum() => _momentum = 0;
     }
 }

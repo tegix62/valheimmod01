@@ -42,13 +42,15 @@ Press **H** to cycle forms (**Shift+H** goes back). The active form shows on the
 
 | Form | Style | Effects |
 |---|---|---|
-| I. Shii-Cho | Way of the Sarlacc | +8% damage per extra enemy within 8 m (max +40%), -10% attack stamina, -5% damage taken |
-| II. Makashi | Way of the Ysalamiri | +35% damage against a lone enemy, -15% damage when 3+ enemies are near, +30% stagger, -20% attack stamina |
+| I. Shii-Cho | Way of the Sarlacc | +8% damage per extra enemy within 8 m (max +40%), -10% against a lone enemy, +20% stagger (sun djem: disarming), -10% attack stamina |
+| II. Makashi | Way of the Ysalamiri | +35% damage against a lone enemy, -15% when 3+ enemies are near, -20% attack stamina. **Contentious Opportunity:** a *perfect parry* makes your next hit +40%. Weak to ranged attacks: +25% damage taken from them |
 | III. Soresu | Way of the Mynock | Blocking deflects **all** ranged attacks, -25% damage taken, +8 stamina per block, +25% stamina regen, -20% damage dealt |
-| IV. Ataru | Way of the Hawk-Bat | +20% attack speed, +15% damage, +15% move speed, higher jumps, +25% attack stamina, +10% damage taken |
-| V. Shien / Djem So | Way of the Krayt Dragon | Blocking sends 75% of a ranged attack back at the shooter. A block arms a riposte: your next hit within 2.5 s does +50%. Also +15% damage, +50% stagger |
-| VI. Niman | Way of the Rancor | Force powers are 75% stronger and 40% cheaper, +5% damage, -5% damage taken, +15% stamina regen |
-| VII. Juyo / Vaapad | Way of the Vornskr | +40% damage, +15% attack speed, 8% lifesteal (capped per hit), +25% stagger, +25% damage taken, -15% stamina regen |
+| IV. Ataru | Way of the Hawk-Bat | +20% attack speed, +15% damage, +15% move speed, higher jumps, stronger Force Leap. **Needs room:** no attack speed or damage bonus indoors, in dungeons or under a roof. +25% attack stamina, +10% damage taken |
+| V. Shien / Djem So | Way of the Krayt Dragon | **Barrier of Blades:** blocking sends 75% of a ranged attack back at the shooter. **Fluid Riposte:** a block makes your next hit within 2.5 s +50%. +15% damage, +50% stagger, saber throw +50%, -10% damage taken |
+| VI. Niman | Way of the Rancor | Force powers 75% stronger and 40% cheaper, +5% damage, -5% damage taken, +10% stamina regen. No standout strength by design |
+| VII. Juyo / Vaapad | Way of the Vornskr | +25% damage, +15% attack speed, +25% stagger. **Momentum:** each consecutive hit adds 5% (max +30%), and being hit breaks it. **Vaapad:** blocking turns lightning back on its source. The only form that can call Force lightning. +25% damage taken, -15% stamina regen |
+
+Each form's traits follow the lore; see [docs/FORMS.md](docs/FORMS.md) for the reasoning and sources behind every number.
 
 ### Form movesets
 
@@ -56,11 +58,11 @@ Each form also changes how the saber swings. Valheim can only play animations th
 
 | Form | Primary combo | Secondary technique |
 |---|---|---|
-| I. Shii-Cho | **Sarlacc Sweep**: wide battleaxe arcs, +25% arc | **Disarming Circle**: atgeir spin that hits everything around you, +40% stagger |
-| II. Makashi | **Fencer's Thrust**: spear lunges, +15% reach, narrow line, +15% damage, -20% stamina | **Contra-Riposte**: the sword's committed counter-cut, +30% damage and stagger |
-| III. Soresu | **Tight Guard**: short, compact sword cuts, -30% stamina | **Circle of Shelter**: mace bash with low damage, 2.2× knockback and heavy stagger |
-| IV. Ataru | **Hawk-Bat Flurry**: Skoll-and-Hati dual-knife chain | **Ataru Leap**: the dual knives' leaping strike, +35% damage |
-| V. Shien / Djem So | **Krayt Strikes**: heavy overhand mace blows, +35% stagger | **Falling Avalanche**: sledge ground-slam that hits the area around the target, +40% damage |
+| I. Shii-Cho | **Disarming Slash**: wide battleaxe arcs at the weapon hand, +25% arc, +30% stagger | **Sarlacc Sweep**: atgeir spin that hits everything around you |
+| II. Makashi | **Fencer's Thrust**: spear lunges, +15% reach, narrow line, +15% damage, -20% stamina | **Makashi Riposte**: the sword's committed counter-cut, +30% damage and stagger |
+| III. Soresu | **Tight Guard**: short, compact sword cuts, -30% stamina | **Circle of Shelter**: low-damage atgeir spin with 2.5× knockback that clears a ring around you |
+| IV. Ataru | **Hawk-Bat Flurry**: Skoll-and-Hati dual-knife chain | **Hawk-Bat Swoop**: the dual knives' springing strike, +35% damage |
+| V. Shien / Djem So | **Krayt Strikes**: heavy overhand mace blows, +35% stagger | **Falling Avalanche**: a powerful overhand sledge blow from above, +40% damage |
 | VI. Niman | **Rancor Balance**: standard sword chain | **Force-Guided Strike**: sword secondary that also fires a Force Push (normal cost and cooldown) |
 | VII. Juyo / Vaapad | **Vornskr Frenzy**: each new combo draws a random style (sword, dual knives, axe, mace or greatsword), never the same twice in a row | **Vaapad Whirlwind**: Krom greatsword's secondary, +50% damage, +40% stamina |
 
@@ -77,8 +79,8 @@ These only work with a lightsaber drawn. Push and Pull share a 4 s cooldown and 
 * **G**: Force Push. A 70° cone out to 9 m that knocks back and staggers enemies.
 * **Shift+G**: Force Pull. Drags enemies in that cone toward you.
 * **T**: Saber Throw. The blade spins out along your aim (14 m, 20 stamina), cuts every enemy it passes on the way out *and* on the way back, then returns to your hand. It turns back early if it hits a wall. Shien / Djem So throws hit 50% harder. You can't swing while it's in flight.
-* **Hold R**: Force Lightning. Arcs from your off hand into the nearest enemy in front (10 m), then chains to up to two more within 5 m, each jump weaker than the last. It deals lightning damage five times a second and drains 15 stamina per second. Juyo / Vaapad lightning is 60% stronger. When there's nothing to hit, the arcs crackle into the air.
-* **Jump again in mid-air**: Force Leap. Launches you forward and up (15 stamina). Landing from a leap triggers the **Hawk-Bat Dive**, a ground slam that damages and knocks back every enemy within 3.5 m. Leaps never cause fall damage. Ataru leaps 40% further, slams 40% harder and pays half the stamina.
+* **Hold R**: Force Lightning. Arcs from your off hand into the nearest enemy in front (10 m), then chains to up to two more within 5 m, each jump weaker than the last. It deals lightning damage five times a second and drains 15 stamina per second. It's a dark-side power, so by default only Form VII (Juyo) can call it (`LightningDarkSideOnly`). When there's nothing to hit, the arcs crackle into the air.
+* **Jump again in mid-air**: Force Leap. Launches you forward and up (15 stamina). Landing from a leap triggers a **Leaping Strike**, a ground slam that damages and knocks back every enemy within 3.5 m. Leaps never cause fall damage. Ataru leaps 40% further, slams 40% harder and pays half the stamina.
 
 All keys, costs and balance values are in `BepInEx/config/tegix62.LightsaberMod.cfg`. Form and Force settings sync from the server's admin config.
 

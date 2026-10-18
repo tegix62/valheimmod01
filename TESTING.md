@@ -26,7 +26,11 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] Each form's primary and secondary attack plays a sensible animation. Note any that freeze, T-pose or deal no damage.
 - [ ] Juyo combos change style after a pause between swings.
 - [ ] Soresu: blocking arrows (e.g. from a Draugr archer) shows "Bolt deflected" and takes no damage.
-- [ ] Shien: same, plus the archer takes damage ("Bolt redirected!").
+- [ ] Shien: same, plus the archer takes damage ("Barrier of Blades!"). Any block shows "Fluid Riposte".
+- [ ] Makashi: only a block timed just as the hit lands shows "Contentious Opportunity"; arrows hurt more than in other forms.
+- [ ] Ataru: the attack speed boost disappears under a roof or in a dungeon and returns outside.
+- [ ] Juyo: repeated hits ramp up damage, and getting hit resets it. Blocking Eikthyr's lightning shows "Lightning turned back!".
+- [ ] Holding R in any form except Juyo shows the dark-side message once; in Juyo it channels.
 - [ ] Ataru and Juyo attack visibly faster, and walking animations return to normal speed afterwards.
 
 ## 5. The Force

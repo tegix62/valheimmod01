@@ -41,20 +41,21 @@ namespace LightsaberMod.Forms
         /// <summary>Indexed like <see cref="SaberForm.All"/>.</summary>
         public static readonly FormMoveset[] All =
         {
-            // I. Shii-Cho: the first form, broad disarming sweeps meant for many opponents at once.
+            // I. Shii-Cho: the first form. Its contact focus is sun djem (disarming, via the Disarming
+            // Slash), and its signature Sarlacc Sweep is a wide sweep against several foes at once.
             new FormMoveset
             {
                 Primary = new SaberMove
                 {
-                    Name = "Sarlacc Sweep", Donors = Battleaxe,
-                    Lore = "Broad horizontal arcs that catch everything within reach.",
-                    Arc = 1.25f, Damage = 0.9f, Stamina = 0.9f,
+                    Name = "Disarming Slash", Donors = Battleaxe,
+                    Lore = "Broad arcs aimed at the enemy's weapon hand: sun djem, the art of disarming.",
+                    Arc = 1.25f, Damage = 0.9f, Stamina = 0.9f, Stagger = 1.3f,
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Disarming Circle", Donors = Atgeir, DonorSecondary = true,
-                    Lore = "A full spin that knocks the weapons from the hands of every foe around you.",
-                    Damage = 1.0f, Stagger = 1.4f,
+                    Name = "Sarlacc Sweep", Donors = Atgeir, DonorSecondary = true,
+                    Lore = "A wide, all-round sweep that strikes every foe surrounding you.",
+                    Damage = 1.0f, Stagger = 1.2f,
                 },
             },
 
@@ -69,8 +70,8 @@ namespace LightsaberMod.Forms
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Contra-Riposte", Donors = Sword, DonorSecondary = true,
-                    Lore = "A single committed counter-cut aimed at the gap in a guard.",
+                    Name = "Makashi Riposte", Donors = Sword, DonorSecondary = true,
+                    Lore = "Turn the enemy's blade aside by a hair, then counter-cut through the gap.",
                     Damage = 1.3f, Stagger = 1.3f,
                 },
             },
@@ -86,9 +87,9 @@ namespace LightsaberMod.Forms
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Circle of Shelter", Donors = Mace, DonorSecondary = true,
-                    Lore = "A hilt-heavy bash that drives attackers back to make space.",
-                    Damage = 0.6f, Force = 2.2f, Stagger = 1.8f, Stamina = 0.8f,
+                    Name = "Circle of Shelter", Donors = Atgeir, DonorSecondary = true,
+                    Lore = "Sweep a protective circle around yourself, driving every attacker back.",
+                    Damage = 0.5f, Force = 2.5f, Stagger = 1.6f, Stamina = 0.8f,
                 },
             },
 
@@ -103,8 +104,8 @@ namespace LightsaberMod.Forms
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Ataru Leap", Donors = DualKnives, DonorSecondary = true,
-                    Lore = "A springing aerial strike that closes distance in an instant.",
+                    Name = "Hawk-Bat Swoop", Donors = DualKnives, DonorSecondary = true,
+                    Lore = "A springing strike so fast it lands before the enemy can react.",
                     Damage = 1.35f, Stamina = 1.2f,
                 },
             },
@@ -121,7 +122,7 @@ namespace LightsaberMod.Forms
                 Secondary = new SaberMove
                 {
                     Name = "Falling Avalanche", Donors = Sledge,
-                    Lore = "A two-handed downward blow that shakes the ground around the target.",
+                    Lore = "A powerful overhand blow brought straight down from above.",
                     Damage = 1.4f, Stagger = 1.5f, Stamina = 1.2f,
                 },
             },

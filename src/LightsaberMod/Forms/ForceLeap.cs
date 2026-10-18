@@ -127,7 +127,7 @@ namespace LightsaberMod.Forms
 
             SaberAudio.PlayAt(SaberAudio.Clash, center, 1f, 0.7f);
             if (hits > 0)
-                player.Message(MessageHud.MessageType.TopLeft, $"Hawk-Bat Dive! ({hits})");
+                player.Message(MessageHud.MessageType.TopLeft, $"Leaping Strike! ({hits})");
         }
     }
 }

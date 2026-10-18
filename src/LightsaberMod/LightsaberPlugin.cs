@@ -23,7 +23,7 @@ namespace LightsaberMod
         public static ConfigEntry<float> DamageScale;
         public static ConfigEntry<bool> UseDurability;
         public static ConfigEntry<float> UnlockSkillStep;
-        public static ConfigEntry<float> LifestealCap;
+        public static ConfigEntry<bool> LightningDarkSideOnly;
         public static ConfigEntry<float> ForceStaminaCost;
         public static ConfigEntry<float> ForceCooldown;
         public static ConfigEntry<int> SavedForm;
@@ -79,8 +79,8 @@ namespace LightsaberMod
                 new ConfigDescription("Form N unlocks at weapon skill (N-1) x this value. 0 unlocks all forms immediately.", new AcceptableValueRange<float>(0f, 15f), synced));
             UseFormMovesets = Config.Bind("Forms", "UseFormMovesets", true,
                 "Give each form its own attacks, borrowed from vanilla weapon animations. Disable to keep each saber's base moveset. Restart required.");
-            LifestealCap = Config.Bind("Forms", "VaapadLifestealCap", 12f,
-                new ConfigDescription("Maximum health Juyo/Vaapad can restore from a single hit.", new AcceptableValueRange<float>(0f, 100f), synced));
+            LightningDarkSideOnly = Config.Bind("Force", "LightningDarkSideOnly", true,
+                new ConfigDescription("Force lightning is a dark side power: only Form VII (Juyo) can call it. Disable to allow it in every form.", null, synced));
             ForceStaminaCost = Config.Bind("Force", "StaminaCost", 25f,
                 new ConfigDescription("Stamina cost of Force Push/Pull before form modifiers.", new AcceptableValueRange<float>(0f, 100f), synced));
             ForceCooldown = Config.Bind("Force", "Cooldown", 4f,

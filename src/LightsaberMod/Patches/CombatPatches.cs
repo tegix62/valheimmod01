@@ -20,16 +20,11 @@ namespace LightsaberMod.Patches
             if (form == null || __instance == attacker) return;
 
             var player = (Player)attacker;
-            float mult = form.OffenceMultiplier(FormManager.NearbyEnemies(player)) + FormManager.TakeRiposte(form);
+            float mult = form.OffenceMultiplier(FormManager.NearbyEnemies(player), FormManager.IsConfined(player))
+                         + FormManager.TakeRiposte(form)
+                         + FormManager.TakeMomentum(form);
             hit.m_damage.Modify(mult);
             hit.m_staggerMultiplier *= form.Stagger;
-
-            if (form.Lifesteal > 0 && !__instance.IsDead())
-            {
-                // Estimated before armour; capped so Vaapad can't out-heal a boss.
-                float heal = Mathf.Min(hit.GetTotalDamage() * form.Lifesteal, LightsaberPlugin.LifestealCap.Value);
-                if (heal > 0.5f) Compat.Call(player, "Heal", heal, true);
-            }
         }
     }
 
@@ -47,7 +42,19 @@ namespace LightsaberMod.Patches
             Character attacker = hit.GetAttacker();
             if (attacker == __instance) return;
 
-            if (form.DeflectBolts && __instance.IsBlocking() && IsRanged(hit, attacker, __instance))
+            bool blocking = __instance.IsBlocking();
+
+            // Vaapad: Windu holding Sidious' lightning on his blade and driving it back.
+            if (form.RedirectLightning && blocking && hit.m_damage.m_lightning > 0f)
+            {
+                if (attacker != null && !attacker.IsDead())
+                    Redirect(__instance, attacker, hit.m_damage.m_lightning, lightning: true);
+                hit.m_damage.m_lightning = 0f;
+                __instance.Message(MessageHud.MessageType.TopLeft, "Lightning turned back!");
+            }
+
+            bool ranged = IsRanged(hit, attacker, __instance);
+            if (form.DeflectBolts && blocking && ranged)
             {
                 float incoming = hit.GetTotalDamage();
                 if (form.RedirectBolts > 0 && attacker != null && !attacker.IsDead())
@@ -56,11 +63,13 @@ namespace LightsaberMod.Patches
                 hit.m_damage = new HitData.DamageTypes();
                 hit.m_pushForce = 0f;
                 hit.m_staggerMultiplier = 0f;
-                __instance.Message(MessageHud.MessageType.TopLeft, form.RedirectBolts > 0 ? "Bolt redirected!" : "Bolt deflected");
+                __instance.Message(MessageHud.MessageType.TopLeft, form.RedirectBolts > 0 ? "Barrier of Blades!" : "Bolt deflected");
                 return;
             }
 
-            hit.m_damage.Modify(form.DamageTaken);
+            hit.m_damage.Modify(ranged ? form.DamageTaken * form.RangedTaken : form.DamageTaken);
+            if (hit.GetTotalDamage() > 0f)
+                FormManager.BreakMomentum();
         }
 
         private static bool IsRanged(HitData hit, Character attacker, Character self)
@@ -71,11 +80,18 @@ namespace LightsaberMod.Patches
             return attacker != null && Vector3.Distance(attacker.transform.position, self.transform.position) > 5f;
         }
 
-        private static void Redirect(Character self, Character shooter, float damage)
+        private static void Redirect(Character self, Character shooter, float damage, bool lightning = false)
         {
             var bolt = new HitData();
-            bolt.m_damage.m_fire = damage * 0.5f;
-            bolt.m_damage.m_pierce = damage * 0.5f;
+            if (lightning)
+            {
+                bolt.m_damage.m_lightning = damage;
+            }
+            else
+            {
+                bolt.m_damage.m_fire = damage * 0.5f;
+                bolt.m_damage.m_pierce = damage * 0.5f;
+            }
             bolt.m_point = shooter.GetCenterPoint();
             bolt.m_dir = (shooter.GetCenterPoint() - self.GetCenterPoint()).normalized;
             bolt.m_pushForce = 10f;
@@ -86,11 +102,21 @@ namespace LightsaberMod.Patches
         }
     }
 
-    /// <summary>Successful blocks feed Soresu's stamina and arm Djem So's counter-attack.</summary>
+    /// <summary>Successful blocks feed Soresu's stamina and arm Djem So's and Makashi's counters.</summary>
     [HarmonyPatch(typeof(Humanoid), "BlockAttack")]
     internal static class BlockPatch
     {
-        private static void Postfix(Humanoid __instance, bool __result)
+        // Valheim counts a block as a perfect parry when it lands within this long of raising the guard.
+        private const float ParryWindow = 0.25f;
+
+        private static void Prefix(Humanoid __instance, out bool __state)
+        {
+            // Read before vanilla resolves the block. If the field is missing, every block counts
+            // as a parry, so Makashi's counter degrades to Djem So's rather than disappearing.
+            __state = Compat.GetField(__instance, "m_blockTimer", 0f) < ParryWindow;
+        }
+
+        private static void Postfix(Humanoid __instance, bool __result, bool __state)
         {
             if (!__result) return;
             SaberForm form = FormManager.ActiveFor(__instance);
@@ -100,7 +126,7 @@ namespace LightsaberMod.Patches
 
             if (form.BlockStaminaRefund > 0)
                 Compat.Call(__instance, "AddStamina", form.BlockStaminaRefund);
-            FormManager.ArmRiposte(form);
+            FormManager.ArmRiposte((Player)__instance, form, __state);
         }
     }
 
@@ -142,14 +168,15 @@ namespace LightsaberMod.Patches
             if (animator == null) return;
 
             SaberForm form = FormManager.ActiveFor(character);
-            bool want = form != null && form.AttackSpeed != 1f && character.InAttack();
+            float speed = form != null ? form.EffectiveAttackSpeed(FormManager.IsConfined((Player)character)) : 1f;
+            bool want = speed != 1f && character.InAttack();
 
             if (want)
             {
                 // Leave vanilla hit-pause (speed near 0) alone so impacts still land with weight.
                 if (animator.speed > 0.9f)
                 {
-                    animator.speed = form.AttackSpeed;
+                    animator.speed = speed;
                     _boosted = true;
                 }
             }
