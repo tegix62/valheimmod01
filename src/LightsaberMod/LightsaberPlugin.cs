@@ -25,6 +25,7 @@ namespace LightsaberMod
         public static ConfigEntry<float> ForceStaminaCost;
         public static ConfigEntry<float> ForceCooldown;
         public static ConfigEntry<int> SavedForm;
+        public static ConfigEntry<bool> UseFormMovesets;
 
         private ConfigEntry<KeyboardShortcut> _nextFormKey;
         private ConfigEntry<KeyboardShortcut> _prevFormKey;
@@ -61,6 +62,8 @@ namespace LightsaberMod
                 "If false, lightsabers never wear out. Restart required.");
             UnlockSkillStep = Config.Bind("Forms", "UnlockSkillStep", 5f,
                 new ConfigDescription("Form N unlocks at weapon skill (N-1) x this value. 0 unlocks all forms immediately.", new AcceptableValueRange<float>(0f, 15f), synced));
+            UseFormMovesets = Config.Bind("Forms", "UseFormMovesets", true,
+                "Give each form its own attacks, borrowed from vanilla weapon animations. Disable to keep each saber's base moveset. Restart required.");
             LifestealCap = Config.Bind("Forms", "VaapadLifestealCap", 12f,
                 new ConfigDescription("Maximum health Juyo/Vaapad can restore from a single hit.", new AcceptableValueRange<float>(0f, 100f), synced));
             ForceStaminaCost = Config.Bind("Force", "StaminaCost", 25f,
@@ -79,6 +82,7 @@ namespace LightsaberMod
         private void OnVanillaPrefabsAvailable()
         {
             SaberFactory.RegisterItems();
+            MovesetManager.Build();
             FormManager.RegisterStatusEffects();
             PrefabManager.OnVanillaPrefabsAvailable -= OnVanillaPrefabsAvailable;
         }

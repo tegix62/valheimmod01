@@ -17,21 +17,22 @@ namespace LightsaberMod.Forms
         private static readonly List<Character> Scratch = new List<Character>();
         private static float _readyAt;
 
-        public static void Push(Player player) => Use(player, pull: false);
+        /// <param name="quiet">Used when a technique triggers the push: fail silently instead of explaining why.</param>
+        public static void Push(Player player, bool quiet = false) => Use(player, pull: false, quiet);
 
-        public static void Pull(Player player) => Use(player, pull: true);
+        public static void Pull(Player player) => Use(player, pull: true, quiet: false);
 
-        private static void Use(Player player, bool pull)
+        private static void Use(Player player, bool pull, bool quiet)
         {
             if (!SaberFactory.IsSaber(player.GetCurrentWeapon()))
             {
-                player.Message(MessageHud.MessageType.Center, "Draw a lightsaber to focus the Force");
+                if (!quiet) player.Message(MessageHud.MessageType.Center, "Draw a lightsaber to focus the Force");
                 return;
             }
 
             if (Time.time < _readyAt)
             {
-                player.Message(MessageHud.MessageType.TopLeft, $"The Force needs {_readyAt - Time.time:0.0}s to settle");
+                if (!quiet) player.Message(MessageHud.MessageType.TopLeft, $"The Force needs {_readyAt - Time.time:0.0}s to settle");
                 return;
             }
 
@@ -39,7 +40,7 @@ namespace LightsaberMod.Forms
             float cost = LightsaberPlugin.ForceStaminaCost.Value * form.ForceCost;
             if (!player.HaveStamina(cost))
             {
-                player.Message(MessageHud.MessageType.Center, "Not enough stamina");
+                if (!quiet) player.Message(MessageHud.MessageType.Center, "Not enough stamina");
                 return;
             }
 

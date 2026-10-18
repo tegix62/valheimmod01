@@ -41,6 +41,22 @@ Press **H** to cycle forms (**Shift+H** goes back). The active form shows on the
 | VI. Niman | Way of the Rancor | Force powers are 75% stronger and 40% cheaper, +5% damage, -5% damage taken, +15% stamina regen |
 | VII. Juyo / Vaapad | Way of the Vornskr | +40% damage, +15% attack speed, 8% lifesteal (capped per hit), +25% stagger, +25% damage taken, -15% stamina regen |
 
+### Form movesets
+
+Each form also changes how the saber swings. Valheim can only play animations the player rig already has, so every technique borrows the attack of the vanilla weapon whose motion best fits the lore, then gets its own damage, reach, arc, stamina and stagger. The secondary attack (middle mouse by default) announces the technique's name.
+
+| Form | Primary combo | Secondary technique |
+|---|---|---|
+| I. Shii-Cho | **Sarlacc Sweep**: wide battleaxe arcs, +25% arc | **Disarming Circle**: atgeir spin that hits everything around you, +40% stagger |
+| II. Makashi | **Fencer's Thrust**: spear lunges, +15% reach, narrow line, +15% damage, -20% stamina | **Contra-Riposte**: the sword's committed counter-cut, +30% damage and stagger |
+| III. Soresu | **Tight Guard**: short, compact sword cuts, -30% stamina | **Circle of Shelter**: mace bash with low damage, 2.2× knockback and heavy stagger |
+| IV. Ataru | **Hawk-Bat Flurry**: Skoll-and-Hati dual-knife chain | **Ataru Leap**: the dual knives' leaping strike, +35% damage |
+| V. Shien / Djem So | **Krayt Strikes**: heavy overhand mace blows, +35% stagger | **Falling Avalanche**: sledge ground-slam that hits the area around the target, +40% damage |
+| VI. Niman | **Rancor Balance**: standard sword chain | **Force-Guided Strike**: sword secondary that also fires a Force Push (normal cost and cooldown) |
+| VII. Juyo / Vaapad | **Vornskr Frenzy**: each new combo draws a random style (sword, dual knives, axe, mace or greatsword), never the same twice in a row | **Vaapad Whirlwind**: Krom greatsword's secondary, +50% damage, +40% stamina |
+
+If a donor weapon is missing, the next one in its list is used, and failing that the saber keeps its own attack (the BepInEx log says which). Set `UseFormMovesets = false` to turn this off.
+
 ### The Force
 
 These only work with a lightsaber drawn. They share a 4 s cooldown and cost 25 stamina before form modifiers.
@@ -77,6 +93,8 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Items/SaberFactory.cs` | Clones the vanilla weapons, rewrites their stats, hides their meshes and builds a hilt, blades and lights in their place |
 | `Forms/SaberForm.cs` | Data for the seven forms |
 | `Forms/FormManager.cs` | Current form, unlocks, keeping the status effect in sync with the held weapon |
+| `Forms/FormMoveset.cs` | Data for each form's techniques and the vanilla attacks they borrow |
+| `Forms/MovesetManager.cs` | Builds those attacks and swaps them onto the held saber |
 | `Forms/ForcePowers.cs` | Push and Pull |
 | `Patches/CombatPatches.cs` | Harmony hooks: outgoing damage (`Character.Damage`), incoming damage and deflection (`Character.RPC_Damage`), blocks (`Humanoid.BlockAttack`), attack stamina (`Attack.GetAttackStamina`), attack speed (`CharacterAnimEvent`) |
 | `Util/Compat.cs` | Calls game methods by reflection where their signatures differ between Valheim versions |
@@ -86,5 +104,6 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 * **Not yet tested in-game.** The project compiles against Jötunn 2.30.2, but the game's own assemblies were stubbed for that build. Report anything that misbehaves along with `BepInEx/LogOutput.log`.
 * Blades are simple glowing cylinders. There's no ignition animation and no hum yet.
 * Redirected bolts damage the shooter directly; they don't fly back as projectiles.
+* Movesets play other weapons' animations while you hold a saber. If one of them doesn't trigger while a one-handed weapon is equipped, that technique will look wrong; the log names which vanilla attack each move uses.
 * Jar'Kai (dual-wielding sabers) isn't implemented. Valheim's off-hand slot is for shields.
 * `DamageScale` and `UseDurability` are applied when the item prefabs are built at startup, so keep them identical for everyone.

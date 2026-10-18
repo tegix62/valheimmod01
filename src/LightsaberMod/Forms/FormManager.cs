@@ -28,6 +28,7 @@ namespace LightsaberMod.Forms
         private static float _nearbyCountedAt = -10f;
 
         public static SaberForm Current => SaberForm.All[_current];
+        public static int CurrentIndex => _current;
 
         public static void Init(int savedForm)
         {
@@ -42,7 +43,7 @@ namespace LightsaberMod.Forms
                 var se = ScriptableObject.CreateInstance<SE_Stats>();
                 se.name = form.StatusEffectName;
                 se.m_name = form.Title;
-                se.m_tooltip = form.Epithet + "\n" + form.Tooltip;
+                se.m_tooltip = form.Epithet + "\n" + form.Tooltip + "\n\n" + MovesetManager.Describe(i);
                 se.m_ttl = 0f;
                 se.m_icon = BorrowIcon(IconSources[i]) ?? BorrowIcon("Crystal");
 
@@ -91,7 +92,9 @@ namespace LightsaberMod.Forms
             _current = index;
             LightsaberPlugin.SavedForm.Value = index;
             _nextSync = 0f;
-            player.Message(MessageHud.MessageType.Center, $"{form.Title}\n<size=18>{form.Epithet} — {form.Summary}</size>");
+            FormMoveset moves = FormMoveset.All[index];
+            player.Message(MessageHud.MessageType.Center,
+                $"{form.Title}\n<size=18>{form.Epithet} — {form.Summary}\n{moves.Primary.Name} / {moves.Secondary.Name}</size>");
         }
 
         /// <summary>Forms unlock as the wielder's skill with the held saber's weapon type rises.</summary>
@@ -123,6 +126,8 @@ namespace LightsaberMod.Forms
             bool armed = SaberFactory.IsSaber(player.GetCurrentWeapon());
             if (armed && !IsUnlocked(player, Current, out _))
                 _current = 0;
+            if (armed)
+                MovesetManager.Apply(player);
 
             StatusEffect wanted = armed && Effects.TryGetValue(Current.Id, out StatusEffect se) ? se : null;
             if (wanted == _applied) return;

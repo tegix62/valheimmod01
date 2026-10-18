@@ -157,4 +157,21 @@ namespace LightsaberMod.Patches
             }
         }
     }
+
+    /// <summary>Hooks each swing for Juyo's shifting combos, named techniques and Niman's Force strike.</summary>
+    [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.StartAttack))]
+    internal static class StartAttackPatch
+    {
+        private static void Prefix(Humanoid __instance, bool secondaryAttack)
+        {
+            if (__instance is Player player && player == Player.m_localPlayer)
+                MovesetManager.BeforeAttack(player, secondaryAttack);
+        }
+
+        private static void Postfix(Humanoid __instance, bool secondaryAttack, bool __result)
+        {
+            if (__result && __instance is Player player && player == Player.m_localPlayer)
+                MovesetManager.AfterAttack(player, secondaryAttack);
+        }
+    }
 }
