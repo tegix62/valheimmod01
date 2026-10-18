@@ -1,0 +1,9 @@
+# Copy to <plugin folder>/mocap/lightsaber_mocap.txt and put your .bvh files beside it.
+# key.slot = file.bvh [, more.bvh ...] [speed=1.0] [start=0.0] [end=<length>] [body=full]
+# keys: shiicho makashi soresu ataru shien niman juyo jarkai *   slots: primary secondary idle
+# Run `lightsaber_mocap` in the F5 console to reload after editing. See docs/MOCAP.md.
+
+# makashi.primary   = makashi_lunge_1.bvh, makashi_lunge_2.bvh, makashi_lunge_3.bvh
+# makashi.secondary = makashi_riposte.bvh start=0.2 end=1.1
+# soresu.idle       = soresu_guard_loop.bvh
+# ataru.secondary   = hawkbat_swoop.bvh body=full speed=1.2

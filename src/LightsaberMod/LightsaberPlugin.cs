@@ -29,6 +29,7 @@ namespace LightsaberMod
         public static ConfigEntry<bool> JarKaiEnabled;
         public static ConfigEntry<float> StanceIntensity;
         public static ConfigEntry<bool> Flourishes;
+        public static ConfigEntry<bool> UseMocap;
         public static ConfigEntry<Vector3> JarKaiGripRotation;
         public static ConfigEntry<float> ForceStaminaCost;
         public static ConfigEntry<float> ForceCooldown;
@@ -65,6 +66,8 @@ namespace LightsaberMod
             CommandManager.Instance.AddConsoleCommand(new ListClipsCommand());
             PoseLibrary.Load(Path.GetDirectoryName(Info.Location));
             CommandManager.Instance.AddConsoleCommand(new PoseCommand());
+            Animation.Mocap.MocapLibrary.Load(Path.GetDirectoryName(Info.Location));
+            CommandManager.Instance.AddConsoleCommand(new Animation.Mocap.MocapCommand());
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabsAvailable;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
@@ -94,6 +97,7 @@ namespace LightsaberMod
             StanceIntensity = Config.Bind("Effects", "StanceIntensity", 1f,
                 new ConfigDescription("How strongly each form's stance is layered over the idle pose. 0 turns stances off. Tune poses with the lightsaber_pose console command.", new AcceptableValueRange<float>(0f, 1.5f)));
             Flourishes = Config.Bind("Effects", "Flourishes", true, "Whole-body flips and spins (Ataru's leap, spinning techniques).");
+            UseMocap = Config.Bind("Effects", "UseMotionCapture", true, "Play BVH motion-capture clips from the mocap folder (see docs/MOCAP.md), if any are installed.");
             JarKaiEnabled = Config.Bind("Forms", "JarKai", true,
                 new ConfigDescription("In Niman, draw a second lightsaber or shoto from your pack into an empty off hand.", null, synced));
             JarKaiGripRotation = Config.Bind("Effects", "JarKaiGripRotation", Vector3.zero,
@@ -191,6 +195,8 @@ namespace LightsaberMod
                 if (p == null) continue;
                 if (p.GetComponent<JarKaiVisual>() == null) p.gameObject.AddComponent<JarKaiVisual>();
                 if (p.GetComponent<FormPoser>() == null) p.gameObject.AddComponent<FormPoser>();
+                if (Animation.Mocap.MocapLibrary.Enabled && p.GetComponent<Animation.Mocap.MocapPlayer>() == null)
+                    p.gameObject.AddComponent<Animation.Mocap.MocapPlayer>();
             }
             if (FormAnimations.Enabled) FormAnimations.EnsureAnimators();
         }

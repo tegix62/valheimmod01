@@ -19,6 +19,7 @@ namespace LightsaberMod.Net
         private const string ThrowRpc = "LightsaberMod_SaberThrow";
         private const string LightningRpc = "LightsaberMod_Lightning";
         private const string FlourishRpc = "LightsaberMod_Flourish";
+        private const string MocapRpc = "LightsaberMod_Mocap";
         private const string FormKey = "LightsaberMod_Form";
         private const string JarKaiKey = "LightsaberMod_JarKai";
 
@@ -34,6 +35,7 @@ namespace LightsaberMod.Net
                 ZRoutedRpc.instance.Register<ZPackage>(ThrowRpc, OnThrow);
                 ZRoutedRpc.instance.Register<ZPackage>(LightningRpc, OnLightning);
                 ZRoutedRpc.instance.Register<ZPackage>(FlourishRpc, OnFlourish);
+                ZRoutedRpc.instance.Register<ZPackage>(MocapRpc, OnMocap);
             }
         }
 
@@ -101,6 +103,27 @@ namespace LightsaberMod.Net
             int flourish = pkg.ReadInt();
             if (player != null)
                 Animation.FormPoser.For(player).Play((Animation.FormPoser.Flourish)flourish);
+        }
+
+        // ----- Motion capture -------------------------------------------------------------
+
+        public static void BroadcastMocap(Player player, int slot, int step)
+        {
+            if (ZRoutedRpc.instance == null) return;
+            var pkg = new ZPackage();
+            pkg.Write(player.GetPlayerID());
+            pkg.Write(slot);
+            pkg.Write(step);
+            ZRoutedRpc.instance.InvokeRoutedRPC(Everybody, MocapRpc, pkg);
+        }
+
+        private static void OnMocap(long sender, ZPackage pkg)
+        {
+            Player player = FindRemote(pkg.ReadLong());
+            int slot = pkg.ReadInt();
+            int step = pkg.ReadInt();
+            if (player != null && Animation.Mocap.MocapLibrary.Enabled)
+                Animation.Mocap.MocapPlayer.For(player).Play((Animation.Mocap.MocapPlayer.Slot)slot, step);
         }
 
         // ----- Form -----------------------------------------------------------------------

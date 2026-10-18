@@ -50,6 +50,12 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] Arms never keep twisting further over time. If they do, set `StanceIntensity = 0` and report it.
 - [ ] Ataru's Force Leap somersaults; Hawk-Bat Swoop and Vaapad Whirlwind spin, and the character lands facing the same way.
 
+## 5c. Motion capture (once you have a BVH clip)
+- [ ] After `lightsaber_mocap`, the console reports the clip and slot counts, and the log has no per-line warnings.
+- [ ] Attacking in the mapped form plays your motion on the upper body while the legs keep moving normally.
+- [ ] Hits still land, and the body blends back to normal when the clip ends.
+- [ ] If the pose comes out twisted or mirrored, note how (e.g. "arms swapped", "leaning backwards") and send the log.
+
 ## 6. Multiplayer (if possible)
 - [ ] A second player sees your saber glow and hears its hum.
 - [ ] Form damage bonuses, deflection and Force powers work on a dedicated server.

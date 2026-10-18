@@ -117,7 +117,10 @@ namespace LightsaberMod.Animation
             string key = drawn ? CurrentPoseKey() : null;
 
             // Stances are for standing ready: attacks, blocks and flourishes use the game's own motion.
-            bool posing = key != null && !_player.IsDead() && !_player.InAttack() && !_player.IsBlocking() && !_flourishing;
+            // A motion-capture idle clip, if one is mapped, replaces the code-driven stance.
+            Mocap.MocapPlayer mocap = GetComponent<Mocap.MocapPlayer>();
+            bool posing = key != null && !_player.IsDead() && !_player.InAttack() && !_player.IsBlocking() && !_flourishing
+                          && (mocap == null || !mocap.IdleActive);
             float target = posing ? LightsaberPlugin.StanceIntensity.Value : 0f;
             _weight = Mathf.MoveTowards(_weight, target, BlendPerSecond * Time.deltaTime);
             if (key != null) _poseKey = key;

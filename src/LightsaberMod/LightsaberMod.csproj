@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <!-- Valheim runs on Unity 6, whose assemblies are built against .NET Standard 2.1. -->
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>LightsaberMod</AssemblyName>
     <RootNamespace>LightsaberMod</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -23,8 +24,16 @@
   <ItemGroup>
     <!-- Jotunn's package also wires up references to the game, Unity, BepInEx and Harmony
          from VALHEIM_INSTALL (see Environment.props.example). -->
-    <PackageReference Include="JotunnLib" Version="2.30.2" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="JotunnLib" Version="2.30.2" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Jotunn ships only a net462 build. NuGet won't pick it for netstandard2.1 on its own (the
+         package's build props count as compatible assets), so reference it directly; netstandard2.1's
+         mscorlib facade resolves its framework types. -->
+    <Reference Include="Jotunn">
+      <HintPath>$(PkgJotunnLib)\lib\net462\Jotunn.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="DeployMod" AfterTargets="Build" Condition="'$(MOD_DEPLOYPATH)' != '' And Exists('$(MOD_DEPLOYPATH)')">
