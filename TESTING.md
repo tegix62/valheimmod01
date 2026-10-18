@@ -31,6 +31,8 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] Ataru: the attack speed boost disappears under a roof or in a dungeon and returns outside.
 - [ ] Juyo: repeated hits ramp up damage, and getting hit resets it. Blocking Eikthyr's lightning shows "Lightning turned back!".
 - [ ] Holding R in any form except Juyo shows the dark-side message once; in Juyo it channels.
+- [ ] Jar'Kai: in Niman with a lightsaber in hand, no shield and a shoto in the pack, the shoto ignites in the left hand ("Jar'Kai: second blade drawn"). Check that it points the right way (adjust `JarKaiGripRotation` if not), that attacks switch to the dual-knife moves, and that equipping a shield or switching form retracts it.
+- [ ] Jar'Kai: a second player sees the off-hand blade.
 - [ ] Ataru and Juyo attack visibly faster, and walking animations return to normal speed afterwards.
 
 ## 5. The Force

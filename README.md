@@ -47,8 +47,19 @@ Press **H** to cycle forms (**Shift+H** goes back). The active form shows on the
 | III. Soresu | Way of the Mynock | Blocking deflects **all** ranged attacks, -25% damage taken, +8 stamina per block, +25% stamina regen, -20% damage dealt |
 | IV. Ataru | Way of the Hawk-Bat | +20% attack speed, +15% damage, +15% move speed, higher jumps, stronger Force Leap. **Needs room:** no attack speed or damage bonus indoors, in dungeons or under a roof. +25% attack stamina, +10% damage taken |
 | V. Shien / Djem So | Way of the Krayt Dragon | **Barrier of Blades:** blocking sends 75% of a ranged attack back at the shooter. **Fluid Riposte:** a block makes your next hit within 2.5 s +50%. +15% damage, +50% stagger, saber throw +50%, -10% damage taken |
-| VI. Niman | Way of the Rancor | Force powers 75% stronger and 40% cheaper, +5% damage, -5% damage taken, +10% stamina regen. No standout strength by design |
+| VI. Niman | Way of the Rancor | Force powers 75% stronger and 40% cheaper, +5% damage, -5% damage taken, +10% stamina regen. No standout strength by design. **Jar'Kai** (below) |
 | VII. Juyo / Vaapad | Way of the Vornskr | +25% damage, +15% attack speed, +25% stagger. **Momentum:** each consecutive hit adds 5% (max +30%), and being hit breaks it. **Vaapad:** blocking turns lightning back on its source. The only form that can call Force lightning. +25% damage taken, -15% stamina regen |
+
+#### Jar'Kai (Niman)
+
+Niman is the foundation of Jar'Kai, two-blade fighting. Valheim's off hand only holds shields and torches, so the second saber isn't equipped. While you're in Niman, holding a one-handed lightsaber or shoto with an **empty off hand**, and carrying **another lightsaber or shoto** in your inventory, that second blade ignites in your left hand automatically. A shoto is preferred, as in the classic saber-and-shoto pairing.
+
+* Each hit adds 40% of the off-hand blade's damage (its follow-through cut).
+* Blocks are 30% stronger. Attacks cost 15% more stamina.
+* The moveset switches to the dual-knife animations, the only vanilla moves that swing both arms: **Jar'Kai Flurry** and **Twin-Blade Lunge**.
+* Other players see the second blade too. Equipping a shield, leaving Niman or sheathing puts it away.
+
+If the off-hand blade sits at a wrong angle, adjust `JarKaiGripRotation` in the config. Set `JarKai = false` to disable it.
 
 Each form's traits follow the lore; see [docs/FORMS.md](docs/FORMS.md) for the reasoning and sources behind every number.
 
@@ -61,10 +72,10 @@ Each form also changes how the saber swings. Valheim can only play animations th
 | I. Shii-Cho | **Disarming Slash**: wide battleaxe arcs at the weapon hand, +25% arc, +30% stagger | **Sarlacc Sweep**: atgeir spin that hits everything around you |
 | II. Makashi | **Fencer's Thrust**: spear lunges, +15% reach, narrow line, +15% damage, -20% stamina | **Makashi Riposte**: the sword's committed counter-cut, +30% damage and stagger |
 | III. Soresu | **Tight Guard**: short, compact sword cuts, -30% stamina | **Circle of Shelter**: low-damage atgeir spin with 2.5× knockback that clears a ring around you |
-| IV. Ataru | **Hawk-Bat Flurry**: Skoll-and-Hati dual-knife chain | **Hawk-Bat Swoop**: the dual knives' springing strike, +35% damage |
+| IV. Ataru | **Hawk-Bat Flurry**: fast knife chain | **Hawk-Bat Swoop**: the knife's springing strike, +35% damage |
 | V. Shien / Djem So | **Krayt Strikes**: heavy overhand mace blows, +35% stagger | **Falling Avalanche**: a powerful overhand sledge blow from above, +40% damage |
-| VI. Niman | **Rancor Balance**: standard sword chain | **Force-Guided Strike**: sword secondary that also fires a Force Push (normal cost and cooldown) |
-| VII. Juyo / Vaapad | **Vornskr Frenzy**: each new combo draws a random style (sword, dual knives, axe, mace or greatsword), never the same twice in a row | **Vaapad Whirlwind**: Krom greatsword's secondary, +50% damage, +40% stamina |
+| VI. Niman | **Rancor Balance**: standard sword chain (Jar'Kai: **Jar'Kai Flurry**, dual-knife chain) | **Force-Guided Strike**: sword secondary that also fires a Force Push (Jar'Kai: **Twin-Blade Lunge**, dual-knife leap) |
+| VII. Juyo / Vaapad | **Vornskr Frenzy**: each new combo draws a random style (sword, knife, axe, mace or greatsword), never the same twice in a row | **Vaapad Whirlwind**: Krom greatsword's secondary, +50% damage, +40% stamina |
 
 If a donor weapon is missing, the next one in its list is used, and failing that the saber keeps its own attack (the BepInEx log says which). Set `UseFormMovesets = false` to turn this off.
 
@@ -117,6 +128,7 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Forms/SaberThrow.cs` | The thrown, returning saber |
 | `Forms/ForceLightning.cs` | Channelled, chaining lightning and its arcs |
 | `Forms/ForceLeap.cs` | Mid-air leap and landing slam |
+| `Forms/JarKai.cs` | Niman's two-blade fighting and the off-hand saber model |
 | `Items/SaberBlade.cs` | Per-model ignition, hum, swing trails and retract |
 | `Items/SaberAudio.cs` | Procedurally generated sounds |
 | `Patches/CombatPatches.cs` | Harmony hooks: outgoing damage (`Character.Damage`), incoming damage and deflection (`Character.RPC_Damage`), blocks (`Humanoid.BlockAttack`), attack stamina (`Attack.GetAttackStamina`), attack speed (`CharacterAnimEvent`) |
@@ -131,5 +143,5 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 * Blades are simple glowing cylinders, and the synthesised sounds are approximations of the films' sound design.
 * Redirected bolts damage the shooter directly; they don't fly back as projectiles.
 * Movesets play other weapons' animations while you hold a saber. If one of them doesn't trigger while a one-handed weapon is equipped, that technique will look wrong; the log names which vanilla attack each move uses.
-* Jar'Kai (dual-wielding sabers) isn't implemented. Valheim's off-hand slot is for shields.
+* Jar'Kai's second saber is drawn from the inventory rather than equipped, so it can't be selected separately or swapped mid-fight.
 * `DamageScale` and `UseDurability` are applied when the item prefabs are built at startup, so keep them identical for everyone.

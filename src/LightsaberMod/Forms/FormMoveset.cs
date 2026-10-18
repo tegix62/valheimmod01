@@ -26,9 +26,12 @@ namespace LightsaberMod.Forms
         public SaberMove Primary;
         public SaberMove[] PrimaryPool;  // Juyo: each new combo draws a random move from here
         public SaberMove Secondary;
+        public SaberMove JarKaiPrimary;   // Niman with a second saber in the off hand
+        public SaberMove JarKaiSecondary;
 
         private static readonly string[] Sword = { "SwordIron", "SwordSilver", "SwordBronze" };
         private static readonly string[] Knife = { "KnifeSilver", "KnifeBlackMetal", "KnifeCopper" };
+        // The only vanilla moveset that animates both arms; reserved for Jar'Kai.
         private static readonly string[] DualKnives = { "KnifeSkollAndHati", "KnifeSilver" };
         private static readonly string[] Spear = { "SpearBronze", "SpearElderbark", "SpearFlint", "SpearWolfFang" };
         private static readonly string[] Atgeir = { "AtgeirIron", "AtgeirBronze", "AtgeirBlackmetal" };
@@ -98,13 +101,13 @@ namespace LightsaberMod.Forms
             {
                 Primary = new SaberMove
                 {
-                    Name = "Hawk-Bat Flurry", Donors = DualKnives,
+                    Name = "Hawk-Bat Flurry", Donors = Knife,
                     Lore = "A blurring chain of quick cuts delivered on the move.",
                     Damage = 0.85f, Stamina = 1.1f,
                 },
                 Secondary = new SaberMove
                 {
-                    Name = "Hawk-Bat Swoop", Donors = DualKnives, DonorSecondary = true,
+                    Name = "Hawk-Bat Swoop", Donors = Knife, DonorSecondary = true,
                     Lore = "A springing strike so fast it lands before the enemy can react.",
                     Damage = 1.35f, Stamina = 1.2f,
                 },
@@ -141,6 +144,20 @@ namespace LightsaberMod.Forms
                     Lore = "The blade and the Force move together, blasting foes back as the strike lands.",
                     ForcePushOnUse = true, Damage = 1.1f,
                 },
+                // Jar'Kai: Niman is its foundation. Both blades work at once, one pressing the
+                // attack while the other covers.
+                JarKaiPrimary = new SaberMove
+                {
+                    Name = "Jar'Kai Flurry", Donors = DualKnives,
+                    Lore = "Two blades in a relentless alternating rhythm, one striking while the other guards.",
+                    Stamina = 1.1f,
+                },
+                JarKaiSecondary = new SaberMove
+                {
+                    Name = "Twin-Blade Lunge", Donors = DualKnives, DonorSecondary = true,
+                    Lore = "A springing strike that drives both blades home together.",
+                    Damage = 1.2f, Stamina = 1.15f,
+                },
             },
 
             // VII. Juyo / Vaapad: chaotic, bursting, deliberately unpredictable.
@@ -149,7 +166,7 @@ namespace LightsaberMod.Forms
                 PrimaryPool = new[]
                 {
                     new SaberMove { Name = "Vornskr Frenzy", Donors = Sword, Damage = 1.05f },
-                    new SaberMove { Name = "Vornskr Frenzy", Donors = DualKnives, Damage = 0.9f },
+                    new SaberMove { Name = "Vornskr Frenzy", Donors = Knife, Damage = 0.95f },
                     new SaberMove { Name = "Vornskr Frenzy", Donors = Axe, Damage = 1.1f },
                     new SaberMove { Name = "Vornskr Frenzy", Donors = Mace, Damage = 1.1f },
                     new SaberMove { Name = "Vornskr Frenzy", Donors = Greatsword, Damage = 1.0f },

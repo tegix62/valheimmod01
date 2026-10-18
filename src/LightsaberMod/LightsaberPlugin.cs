@@ -24,6 +24,8 @@ namespace LightsaberMod
         public static ConfigEntry<bool> UseDurability;
         public static ConfigEntry<float> UnlockSkillStep;
         public static ConfigEntry<bool> LightningDarkSideOnly;
+        public static ConfigEntry<bool> JarKaiEnabled;
+        public static ConfigEntry<Vector3> JarKaiGripRotation;
         public static ConfigEntry<float> ForceStaminaCost;
         public static ConfigEntry<float> ForceCooldown;
         public static ConfigEntry<int> SavedForm;
@@ -79,6 +81,10 @@ namespace LightsaberMod
                 new ConfigDescription("Form N unlocks at weapon skill (N-1) x this value. 0 unlocks all forms immediately.", new AcceptableValueRange<float>(0f, 15f), synced));
             UseFormMovesets = Config.Bind("Forms", "UseFormMovesets", true,
                 "Give each form its own attacks, borrowed from vanilla weapon animations. Disable to keep each saber's base moveset. Restart required.");
+            JarKaiEnabled = Config.Bind("Forms", "JarKai", true,
+                new ConfigDescription("In Niman, draw a second lightsaber or shoto from your pack into an empty off hand.", null, synced));
+            JarKaiGripRotation = Config.Bind("Effects", "JarKaiGripRotation", Vector3.zero,
+                "Extra rotation (degrees) applied to the off-hand saber, if it sits wrongly in the left hand.");
             LightningDarkSideOnly = Config.Bind("Force", "LightningDarkSideOnly", true,
                 new ConfigDescription("Force lightning is a dark side power: only Form VII (Juyo) can call it. Disable to allow it in every form.", null, synced));
             ForceStaminaCost = Config.Bind("Force", "StaminaCost", 25f,
@@ -129,11 +135,11 @@ namespace LightsaberMod
 
         private void Update()
         {
-            if (FormAnimations.Enabled && Time.time >= _nextAnimatorScan)
+            if (Time.time >= _nextAnimatorScan)
             {
-                // Remote players come and go; give each one a FormAnimator as they appear.
+                // Remote players come and go; give each one its per-player components as they appear.
                 _nextAnimatorScan = Time.time + 1f;
-                FormAnimations.EnsureAnimators();
+                EnsurePlayerComponents();
             }
 
             Player player = Player.m_localPlayer;
@@ -163,6 +169,16 @@ namespace LightsaberMod
             else if (_forcePushKey.Value.IsDown()) ForcePowers.Push(player);
 
             if (_throwKey.Value.IsDown()) SaberThrow.Throw(player);
+        }
+
+        private static void EnsurePlayerComponents()
+        {
+            foreach (Player p in Player.GetAllPlayers())
+            {
+                if (p == null) continue;
+                if (p.GetComponent<JarKaiVisual>() == null) p.gameObject.AddComponent<JarKaiVisual>();
+            }
+            if (FormAnimations.Enabled) FormAnimations.EnsureAnimators();
         }
 
         private void OnDestroy()

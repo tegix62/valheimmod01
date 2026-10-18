@@ -19,6 +19,7 @@ namespace LightsaberMod.Net
         private const string ThrowRpc = "LightsaberMod_SaberThrow";
         private const string LightningRpc = "LightsaberMod_Lightning";
         private const string FormKey = "LightsaberMod_Form";
+        private const string JarKaiKey = "LightsaberMod_JarKai";
 
         // ZRoutedRpc.Everybody; the routed RPC also loops back to the sender, which is ignored below.
         private const long Everybody = 0L;
@@ -95,6 +96,21 @@ namespace LightsaberMod.Net
         {
             ZDO zdo = player.m_nview != null ? player.m_nview.GetZDO() : null;
             return zdo != null && Compat.Call(zdo, "GetInt", FormKey, -1) is int form ? form : -1;
+        }
+
+        // ----- Jar'Kai --------------------------------------------------------------------
+
+        /// <summary>Publishes the prefab name of the local player's off-hand saber, or "" for none.</summary>
+        public static void PublishJarKai(Player player, string prefabName)
+        {
+            ZDO zdo = player.m_nview != null ? player.m_nview.GetZDO() : null;
+            if (zdo != null) Compat.Call(zdo, "Set", JarKaiKey, prefabName);
+        }
+
+        public static string ReadJarKai(Player player)
+        {
+            ZDO zdo = player.m_nview != null ? player.m_nview.GetZDO() : null;
+            return zdo != null && Compat.Call(zdo, "GetString", JarKaiKey, "") is string name ? name : "";
         }
 
         // ----- Helpers --------------------------------------------------------------------

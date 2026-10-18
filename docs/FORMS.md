@@ -95,9 +95,11 @@ Gameplay numbers (+25% and so on) are never in the lore. They're translations of
 | Force powers 75% stronger and 40% cheaper | Lore: Force integration |
 | Secondary **Force-Guided Strike**: a sword strike carrying a Force Push | Lore: Force woven into bladework (move name is the mod's own) |
 | Small, even bonuses (+5% damage, -5% damage taken, +10% stamina regen) | Lore: balance without a standout strength |
-| Jar'Kai | **Not implemented.** Valheim's off hand holds shields, not a second saber |
+| **Jar'Kai**: a second saber or shoto from the pack, drawn into an empty off hand | Lore: Niman is Jar'Kai's foundation, and the saber-and-shoto pairing is the classic one. Valheim can't equip a second weapon, so it's drawn from the inventory |
+| Off-hand blade adds 40% of its damage per hit, +30% block power, +15% attack stamina | Inferred: two blades press and guard at once, at a cost in endurance |
+| Jar'Kai moves: **Jar'Kai Flurry**, **Twin-Blade Lunge** (the mod's own names) | Game: dual-knife animations, the only vanilla ones that move both arms |
 
-*Changed in this pass:* stamina regen trimmed from +15% to +10% so no single stat stands out.
+*Changed in this pass:* stamina regen trimmed from +15% to +10% so no single stat stands out. Jar'Kai added, which also let Ataru and Juyo stop borrowing the two-armed dual-knife animations they don't fit.
 
 ## Form VII: Juyo / Vaapad (Way of the Vornskr, Ferocity Form)
 
@@ -127,9 +129,9 @@ Gameplay numbers (+25% and so on) are never in the lore. They're translations of
 
 * **The numbers.** Every percentage is a game translation, and balance may need tuning once it's played.
 * **Animations.** Each form borrows the closest vanilla Valheim animation (e.g. spear thrusts for Makashi's lunges) until custom clips exist. See [ANIMATIONS.md](ANIMATIONS.md).
-* **Invented move names.** Tight Guard, Fencer's Thrust, Hawk-Bat Flurry, Krayt Strikes, Rancor Balance, Force-Guided Strike, Vornskr Frenzy and Vaapad Whirlwind are the mod's own descriptive names for moves the lore doesn't name. The named techniques (Disarming Slash, Sarlacc Sweep, Makashi Riposte, Contentious Opportunity, Circle of Shelter, Hawk-Bat Swoop, Barrier of Blades, Fluid Riposte and Falling Avalanche) come from the Legends material.
+* **Invented move names.** Tight Guard, Fencer's Thrust, Hawk-Bat Flurry, Krayt Strikes, Rancor Balance, Force-Guided Strike, Vornskr Frenzy, Vaapad Whirlwind, Jar'Kai Flurry and Twin-Blade Lunge are the mod's own descriptive names for moves the lore doesn't name. The named techniques (Disarming Slash, Sarlacc Sweep, Makashi Riposte, Contentious Opportunity, Circle of Shelter, Hawk-Bat Swoop, Barrier of Blades, Fluid Riposte and Falling Avalanche) come from the Legends material.
 * **Unlock order.** Forms unlock in numerical order with weapon skill. Jedi learned Shii-Cho first, but a real Jedi wouldn't necessarily progress I → VII.
-* **Jar'Kai** (dual sabers) is absent.
+* **Jar'Kai** draws its second saber from the inventory rather than an equipment slot.
 
 ## Sources consulted
 

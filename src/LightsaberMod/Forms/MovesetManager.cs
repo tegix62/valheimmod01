@@ -22,6 +22,7 @@ namespace LightsaberMod.Forms
         private static readonly MethodInfo CloneMethod = AccessTools.Method(typeof(object), "MemberwiseClone");
 
         private static readonly Dictionary<SaberMove, Attack> Built = new Dictionary<SaberMove, Attack>();
+        // Value is form index * 2, plus 1 when the Jar'Kai variant was applied.
         private static readonly Dictionary<ItemDrop.ItemData.SharedData, int> AppliedForm = new Dictionary<ItemDrop.ItemData.SharedData, int>();
 
         private static float _lastPrimaryAt = -10f;
@@ -36,6 +37,8 @@ namespace LightsaberMod.Forms
             {
                 BuildMove(set.Primary);
                 BuildMove(set.Secondary);
+                BuildMove(set.JarKaiPrimary);
+                BuildMove(set.JarKaiSecondary);
                 if (set.PrimaryPool != null)
                     foreach (SaberMove move in set.PrimaryPool)
                         BuildMove(move);
@@ -78,12 +81,14 @@ namespace LightsaberMod.Forms
 
             ItemDrop.ItemData.SharedData shared = weapon.m_shared;
             int form = FormManager.CurrentIndex;
-            if (AppliedForm.TryGetValue(shared, out int applied) && applied == form) return;
-
             FormMoveset set = FormMoveset.All[form];
-            if (Built.TryGetValue(set.Primary, out Attack primary)) shared.m_attack = Clone(primary);
-            if (Built.TryGetValue(set.Secondary, out Attack secondary)) shared.m_secondaryAttack = Clone(secondary);
-            AppliedForm[shared] = form;
+            bool jarKai = JarKai.Active && set.JarKaiPrimary != null;
+            int key = form * 2 + (jarKai ? 1 : 0);
+            if (AppliedForm.TryGetValue(shared, out int applied) && applied == key) return;
+
+            if (Built.TryGetValue(jarKai ? set.JarKaiPrimary : set.Primary, out Attack primary)) shared.m_attack = Clone(primary);
+            if (Built.TryGetValue(jarKai ? set.JarKaiSecondary : set.Secondary, out Attack secondary)) shared.m_secondaryAttack = Clone(secondary);
+            AppliedForm[shared] = key;
             _lastPoolPick = -1;
         }
 
@@ -116,7 +121,8 @@ namespace LightsaberMod.Forms
         {
             if (!Enabled || !secondary || !SaberFactory.IsSaber(player.GetCurrentWeapon())) return;
 
-            SaberMove move = FormMoveset.All[FormManager.CurrentIndex].Secondary;
+            FormMoveset set = FormMoveset.All[FormManager.CurrentIndex];
+            SaberMove move = JarKai.Active && set.JarKaiSecondary != null ? set.JarKaiSecondary : set.Secondary;
             player.Message(MessageHud.MessageType.TopLeft, move.Name);
             if (move.ForcePushOnUse)
                 ForcePowers.Push(player, quiet: true);
@@ -125,7 +131,10 @@ namespace LightsaberMod.Forms
         public static string Describe(int formIndex)
         {
             FormMoveset set = FormMoveset.All[formIndex];
-            return $"Primary: {set.Primary.Name}. {set.Primary.Lore}\nSecondary: {set.Secondary.Name}. {set.Secondary.Lore}";
+            string text = $"Primary: {set.Primary.Name}. {set.Primary.Lore}\nSecondary: {set.Secondary.Name}. {set.Secondary.Lore}";
+            if (set.JarKaiPrimary != null)
+                text += $"\nJar'Kai primary: {set.JarKaiPrimary.Name}. {set.JarKaiPrimary.Lore}\nJar'Kai secondary: {set.JarKaiSecondary.Name}. {set.JarKaiSecondary.Lore}";
+            return text;
         }
     }
 }

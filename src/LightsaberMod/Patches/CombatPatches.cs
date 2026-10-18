@@ -20,6 +20,7 @@ namespace LightsaberMod.Patches
             if (form == null || __instance == attacker) return;
 
             var player = (Player)attacker;
+            if (JarKai.Active) JarKai.AddOffhandCut(hit);
             float mult = form.OffenceMultiplier(FormManager.NearbyEnemies(player), FormManager.IsConfined(player))
                          + FormManager.TakeRiposte(form)
                          + FormManager.TakeMomentum(form);
@@ -130,6 +131,24 @@ namespace LightsaberMod.Patches
         }
     }
 
+    /// <summary>Jar'Kai: two blades block better than one. Covers every GetBlockPower overload.</summary>
+    [HarmonyPatch]
+    internal static class JarKaiBlockPowerPatch
+    {
+        private static System.Collections.Generic.IEnumerable<MethodBase> TargetMethods() =>
+            AccessTools.GetDeclaredMethods(typeof(ItemDrop.ItemData))
+                .FindAll(m => m.Name == "GetBlockPower" && m.ReturnType == typeof(float));
+
+        private static bool Prepare() => System.Linq.Enumerable.Any(TargetMethods());
+
+        private static void Postfix(ItemDrop.ItemData __instance, ref float __result)
+        {
+            Player player = Player.m_localPlayer;
+            if (JarKai.Active && player != null && __instance == player.GetCurrentWeapon())
+                __result *= JarKai.BlockPowerBonus;
+        }
+    }
+
     /// <summary>Scales the stamina each swing costs.</summary>
     [HarmonyPatch]
     internal static class AttackStaminaPatch
@@ -141,7 +160,7 @@ namespace LightsaberMod.Patches
         private static void Postfix(Attack __instance, ref float __result)
         {
             SaberForm form = FormManager.ActiveFor(Compat.GetField<Humanoid>(__instance, "m_character"));
-            if (form != null) __result *= form.AttackStamina;
+            if (form != null) __result *= form.AttackStamina * (JarKai.Active ? JarKai.AttackStaminaCost : 1f);
         }
     }
 

@@ -54,6 +54,7 @@ namespace LightsaberMod.Forms
         public float ForceCost = 1f;
         public float ThrowPower = 1f;     // saber throw damage
         public bool DarkSide;             // may call Force lightning when it's restricted to the dark side
+        public bool AllowsJarKai;         // Niman: a second saber in the off hand (see JarKai)
         public float LeapPower = 1f;      // Force leap height/distance and landing strike
         public float LeapCost = 1f;
 
@@ -126,14 +127,14 @@ namespace LightsaberMod.Forms
             },
 
             // Lore: a balanced blend of the earlier forms that integrates Force powers into
-            // combat; the foundation for Jar'Kai. Its weakness is breadth without depth: no
-            // standout strength.
+            // combat; the foundation for Jar'Kai (two-blade fighting, sometimes called Second
+            // Niman). Its weakness is breadth without depth: no standout strength.
             new SaberForm
             {
                 Number = 6, Id = "niman", Name = "Niman", Epithet = "Way of the Rancor", AltName = "Moderation Form",
                 Summary = "Moderation in all things, with the Force woven into every strike.",
-                Tooltip = "Force powers 75% stronger and 40% cheaper\n+5% damage, -5% damage taken\n+10% stamina regen\nNo single standout strength",
-                ForcePower = 1.75f, ForceCost = 0.6f, DamageDealt = 1.05f, DamageTaken = 0.95f,
+                Tooltip = "Force powers 75% stronger and 40% cheaper\n+5% damage, -5% damage taken\n+10% stamina regen\nNo single standout strength\n\nJar'Kai: with a one-handed saber, an empty off hand and a second saber or shoto in your pack, the second blade is drawn: each hit adds 40% of its damage, blocks are 30% stronger, attacks cost 15% more stamina",
+                AllowsJarKai = true, ForcePower = 1.75f, ForceCost = 0.6f, DamageDealt = 1.05f, DamageTaken = 0.95f,
                 StaminaRegen = 1.1f, AttackStamina = 0.95f,
             },
 

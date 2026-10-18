@@ -138,6 +138,7 @@ namespace LightsaberMod.Forms
             bool armed = SaberFactory.IsSaber(player.GetCurrentWeapon());
             if (armed && !IsUnlocked(player, Current, out _))
                 _current = 0;
+            JarKai.Tick(player); // also clears Jar'Kai when the saber is sheathed
             if (armed)
                 MovesetManager.Apply(player);
 
