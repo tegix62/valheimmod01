@@ -79,9 +79,30 @@ Each form also changes how the saber swings. Valheim can only play animations th
 
 If a donor weapon is missing, the next one in its list is used, and failing that the saber keeps its own attack (the BepInEx log says which). Set `UseFormMovesets = false` to turn this off.
 
+### Stances and flourishes
+
+While a saber is drawn, each form holds its own stance, layered over the game's own idle and movement:
+- **Makashi:** a side-on fencer with the blade extended.
+- **Soresu:** the blade raised across the body.
+- **Djem So:** a high two-handed guard.
+- **Juyo:** low and coiled.
+- **Jar'Kai:** both blades raised.
+
+Ataru's Force Leap is a **somersault**, and the Hawk-Bat Swoop and Vaapad Whirlwind **spin the whole body**. Other players see all of this.
+
+The stance angles are starting guesses. Tune them live in the F5 console:
+
+```
+lightsaber_pose makashi                          # show Makashi's bone offsets
+lightsaber_pose makashi RightUpperArm -35 0 5    # change one, applies instantly
+lightsaber_pose save                             # keep your changes (lightsaber_poses.txt)
+```
+
+`StanceIntensity` scales all stances (0 turns them off), and `Flourishes` toggles the flips and spins.
+
 ### Custom animations (optional)
 
-You can drop an animation bundle and a mapping file next to the DLL to replace the borrowed vanilla swings with your own clips, per form. Everyone in the session sees them. See [docs/ANIMATIONS.md](docs/ANIMATIONS.md). The `lightsaber_clips` console command lists the vanilla clip names to map.
+You can drop an animation bundle and a mapping file next to the DLL to replace the borrowed vanilla swings with your own clips, per form. Everyone in the session sees them. The [Lightsaber Animation Kit](unity/LightsaberAnimKit/README.md) builds both from Mixamo downloads or phone mocap in a few menu clicks. Background is in [docs/ANIMATIONS.md](docs/ANIMATIONS.md). The `lightsaber_clips` console command lists the vanilla clip names to map.
 
 ### The Force
 
@@ -135,6 +156,8 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Net/NetSync.cs` | Broadcasts saber throws and Force lightning so other players see them, and publishes each player's form |
 | `Animation/FormAnimations.cs` | Loads the optional animation bundle and swaps each saber-wielder's animator per form |
 | `Animation/ListClipsCommand.cs` | `lightsaber_clips` console command |
+| `Animation/FormPoser.cs`, `PoseLibrary.cs`, `PoseCommand.cs` | Procedural stances and flourishes, and the `lightsaber_pose` tuning command |
+| `unity/LightsaberAnimKit/` | Unity editor tools for building custom animation bundles |
 | `Util/Compat.cs` | Calls game methods by reflection where their signatures differ between Valheim versions |
 
 ## Status and known limitations

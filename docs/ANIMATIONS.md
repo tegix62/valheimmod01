@@ -14,6 +14,8 @@ The game still fires its usual attack triggers. Only the clips they play change,
 
 ## Pipeline
 
+**The quick route:** use the [Lightsaber Animation Kit](../unity/LightsaberAnimKit/README.md). Its editor menu automates steps 6 to 9 below: renaming Mixamo clips, copying the events, validating and building the bundle. It also has a per-form Mixamo shopping list. The manual steps are kept here for reference.
+
 1. **Match Unity versions.** Check the Unity version in `Valheim/valheim_Data/../Player.log` (first lines) and install exactly that editor version. Bundles from other versions usually fail to load.
 2. **Get references.** Run AssetRipper on your own Valheim install to export the player model and the vanilla attack clips you'll replace. Use them only as timing and skeleton references, and don't redistribute them.
 3. **Find clip names.** In game, open the F5 console (launch with `-console`) and run `lightsaber_clips` or `lightsaber_clips sword` to list the clip names you can replace.

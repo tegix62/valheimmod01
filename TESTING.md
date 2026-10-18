@@ -33,6 +33,7 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] Holding R in any form except Juyo shows the dark-side message once; in Juyo it channels.
 - [ ] Jar'Kai: in Niman with a lightsaber in hand, no shield and a shoto in the pack, the shoto ignites in the left hand ("Jar'Kai: second blade drawn"). Check that it points the right way (adjust `JarKaiGripRotation` if not), that attacks switch to the dual-knife moves, and that equipping a shield or switching form retracts it.
 - [ ] Jar'Kai: a second player sees the off-hand blade.
+- [ ] A second player sees your stance, flips and spins.
 - [ ] Ataru and Juyo attack visibly faster, and walking animations return to normal speed afterwards.
 
 ## 5. The Force
@@ -40,6 +41,12 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 - [ ] Holding R channels lightning arcs that chain between enemies and drain stamina. Releasing stops the sound and arcs.
 - [ ] Jumping twice performs a Force Leap. Landing near enemies triggers the Hawk-Bat Dive, and a high leap causes no fall damage.
 - [ ] T throws the saber. It spins out, hits enemies, returns to the hand and can't be swung while in flight. Swapping weapons mid-throw doesn't leave the hand empty.
+
+## 5b. Stances and flourishes
+- [ ] Drawing a saber and standing still shows a different pose per form. Note any that look broken (arms through the body, bent backwards) and fix them with `lightsaber_pose <form> <Bone> x y z`, then `lightsaber_pose save`.
+- [ ] Poses blend away while attacking and blocking, then return.
+- [ ] Arms never keep twisting further over time. If they do, set `StanceIntensity = 0` and report it.
+- [ ] Ataru's Force Leap somersaults; Hawk-Bat Swoop and Vaapad Whirlwind spin, and the character lands facing the same way.
 
 ## 6. Multiplayer (if possible)
 - [ ] A second player sees your saber glow and hears its hum.
