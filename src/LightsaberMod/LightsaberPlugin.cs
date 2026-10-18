@@ -3,6 +3,8 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using System.IO;
+using LightsaberMod.Animation;
 using LightsaberMod.Forms;
 using LightsaberMod.Items;
 using UnityEngine;
@@ -42,6 +44,7 @@ namespace LightsaberMod
         private ConfigEntry<KeyboardShortcut> _lightningKey;
 
         private Harmony _harmony;
+        private float _nextAnimatorScan;
 
         private void Awake()
         {
@@ -51,6 +54,9 @@ namespace LightsaberMod
 
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(LightsaberPlugin).Assembly);
+
+            FormAnimations.Load(Path.GetDirectoryName(Info.Location));
+            CommandManager.Instance.AddConsoleCommand(new ListClipsCommand());
 
             PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabsAvailable;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
@@ -123,6 +129,13 @@ namespace LightsaberMod
 
         private void Update()
         {
+            if (FormAnimations.Enabled && Time.time >= _nextAnimatorScan)
+            {
+                // Remote players come and go; give each one a FormAnimator as they appear.
+                _nextAnimatorScan = Time.time + 1f;
+                FormAnimations.EnsureAnimators();
+            }
+
             Player player = Player.m_localPlayer;
             if (player == null || player.IsDead())
             {

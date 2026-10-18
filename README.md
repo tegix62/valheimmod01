@@ -66,6 +66,10 @@ Each form also changes how the saber swings. Valheim can only play animations th
 
 If a donor weapon is missing, the next one in its list is used, and failing that the saber keeps its own attack (the BepInEx log says which). Set `UseFormMovesets = false` to turn this off.
 
+### Custom animations (optional)
+
+You can drop an animation bundle and a mapping file next to the DLL to replace the borrowed vanilla swings with your own clips, per form. Everyone in the session sees them. See [docs/ANIMATIONS.md](docs/ANIMATIONS.md). The `lightsaber_clips` console command lists the vanilla clip names to map.
+
 ### The Force
 
 These only work with a lightsaber drawn. Push and Pull share a 4 s cooldown and cost 25 stamina before form modifiers. Niman makes every Force power stronger and cheaper.
@@ -114,13 +118,15 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Items/SaberBlade.cs` | Per-model ignition, hum, swing trails and retract |
 | `Items/SaberAudio.cs` | Procedurally generated sounds |
 | `Patches/CombatPatches.cs` | Harmony hooks: outgoing damage (`Character.Damage`), incoming damage and deflection (`Character.RPC_Damage`), blocks (`Humanoid.BlockAttack`), attack stamina (`Attack.GetAttackStamina`), attack speed (`CharacterAnimEvent`) |
+| `Net/NetSync.cs` | Broadcasts saber throws and Force lightning so other players see them, and publishes each player's form |
+| `Animation/FormAnimations.cs` | Loads the optional animation bundle and swaps each saber-wielder's animator per form |
+| `Animation/ListClipsCommand.cs` | `lightsaber_clips` console command |
 | `Util/Compat.cs` | Calls game methods by reflection where their signatures differ between Valheim versions |
 
 ## Status and known limitations
 
 * **Not yet tested in-game.** The project compiles against Jötunn 2.30.2, but the game's own assemblies were stubbed for that build. Report anything that misbehaves along with `BepInEx/LogOutput.log`.
 * Blades are simple glowing cylinders, and the synthesised sounds are approximations of the films' sound design.
-* Other players see a thrower's hand go empty, not the blade flying. The throw's damage still reaches everyone normally.
 * Redirected bolts damage the shooter directly; they don't fly back as projectiles.
 * Movesets play other weapons' animations while you hold a saber. If one of them doesn't trigger while a one-handed weapon is equipped, that technique will look wrong; the log names which vanilla attack each move uses.
 * Jar'Kai (dual-wielding sabers) isn't implemented. Valheim's off-hand slot is for shields.

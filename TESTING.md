@@ -38,3 +38,11 @@ Keep `BepInEx/LogOutput.log` open. The mod logs a warning for anything it couldn
 ## 6. Multiplayer (if possible)
 - [ ] A second player sees your saber glow and hears its hum.
 - [ ] Form damage bonuses, deflection and Force powers work on a dedicated server.
+- [ ] The other player sees your thrown saber fly out and back, and your Force lightning arcs (with their crackle).
+- [ ] The log has no errors mentioning `LightsaberMod_SaberThrow` or `LightsaberMod_Lightning`.
+
+## 7. Custom animations (only once you have a bundle)
+- [ ] `lightsaber_clips` prints clip names in the F5 console.
+- [ ] With the bundle and mapping installed, the log reports the clip and rule counts with no per-line warnings.
+- [ ] Drawing a saber plays your clips for the current form, switching forms changes them, and sheathing restores vanilla.
+- [ ] Replaced attacks still deal damage (if not, the clip is missing animation events).

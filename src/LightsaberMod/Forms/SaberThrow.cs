@@ -11,9 +11,8 @@ namespace LightsaberMod.Forms
     /// be swung.
     /// </summary>
     /// <remarks>
-    /// The flying blade is a local copy of the model. Damage reaches other clients through
-    /// the normal hit RPC, but other players see the thrower's hand go empty rather than the
-    /// blade in the air.
+    /// Only the thrower's client deals damage. Every other client is told about the throw
+    /// (see <see cref="Net.NetSync"/>) and flies a cosmetic copy along the same path.
     /// </remarks>
     internal sealed class SaberThrow : MonoBehaviour
     {
@@ -25,7 +24,11 @@ namespace LightsaberMod.Forms
         private static SaberThrow _active;
         private static int _solidMask = -1;
 
+        private const float RemoteTimeout = 6f;
+
         private Player _player;
+        private bool _local;
+        private float _spawnedAt;
         private ItemDrop.ItemData _weapon;
         private GameObject _handModel;
         private Vector3 _direction;
@@ -61,8 +64,29 @@ namespace LightsaberMod.Forms
             Compat.Call(player, "UseStamina", cost);
 
             Vector3 origin = player.GetCenterPoint() + player.transform.forward * 0.6f;
-            Vector3 aim = GameCamera.instance != null ? GameCamera.instance.transform.forward : player.transform.forward;
+            Vector3 aim = (GameCamera.instance != null ? GameCamera.instance.transform.forward : player.transform.forward).normalized;
+            float range = LightsaberPlugin.ThrowRange.Value;
 
+            SaberThrow t = Spawn(player, prefabModel, origin, aim, range);
+            t._local = true;
+            t._weapon = weapon;
+            t._damageScale = 0.8f * FormManager.Current.ThrowPower;
+            _active = t;
+
+            Net.NetSync.BroadcastThrow(player, weapon.m_dropPrefab.name, origin, aim, range);
+            player.Message(MessageHud.MessageType.TopLeft, "Saber Throw");
+        }
+
+        /// <summary>Another player's throw, replayed for show: same path, no damage.</summary>
+        public static void SpawnRemote(Player thrower, string prefabName, Vector3 origin, Vector3 aim, float range)
+        {
+            GameObject prefab = ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(prefabName) : null;
+            GameObject model = prefab != null ? prefab.transform.Find("attach")?.gameObject : null;
+            if (model != null) Spawn(thrower, model, origin, aim, range);
+        }
+
+        private static SaberThrow Spawn(Player player, GameObject prefabModel, Vector3 origin, Vector3 aim, float range)
+        {
             // Instantiate the model's root rather than the prefab, so no ItemDrop/ZNetView comes along.
             GameObject flying = Instantiate(prefabModel, origin, Quaternion.identity);
             flying.name = "thrown_lightsaber";
@@ -76,16 +100,14 @@ namespace LightsaberMod.Forms
                 flying.transform.rotation = Quaternion.FromToRotation(model.up, flat.normalized) * flying.transform.rotation;
             SaberThrow t = flying.AddComponent<SaberThrow>();
             t._player = player;
-            t._weapon = weapon;
-            t._direction = aim.normalized;
-            t._maxDistance = LightsaberPlugin.ThrowRange.Value;
-            t._damageScale = 0.8f * FormManager.Current.ThrowPower;
+            t._direction = aim;
+            t._maxDistance = range;
+            t._spawnedAt = Time.time;
             t._handModel = Compat.GetField<GameObject>(player.GetComponent<VisEquipment>(), "m_rightItemInstance");
             if (t._handModel != null) t._handModel.SetActive(false);
-            _active = t;
 
             SaberAudio.PlayAt(SaberAudio.Ignite, origin, 0.6f, 1.3f);
-            player.Message(MessageHud.MessageType.TopLeft, "Saber Throw");
+            return t;
         }
 
         private void Awake()
@@ -104,9 +126,11 @@ namespace LightsaberMod.Forms
 
         private void Update()
         {
-            if (_player == null || _player.IsDead() || _player.GetCurrentWeapon() != _weapon)
+            if (_player == null || _player.IsDead() || (_local
+                    ? _player.GetCurrentWeapon() != _weapon
+                    : Time.time - _spawnedAt > RemoteTimeout)) // never strand a replayed throw
             {
-                // Wielder died or swapped weapons: the throw just ends.
+                // Wielder died, swapped weapons or left: the throw just ends.
                 Finish();
                 return;
             }
@@ -135,7 +159,7 @@ namespace LightsaberMod.Forms
             }
 
             transform.position = to;
-            HitCharacters(to);
+            if (_local) HitCharacters(to);
         }
 
         private void StartReturn()

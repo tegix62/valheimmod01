@@ -22,6 +22,7 @@ namespace LightsaberMod.Forms
         private static int _current;
         private static StatusEffect _applied;
         private static Player _appliedTo;
+        private static int _publishedForm = -1;
         private static float _nextSync;
         private static float _riposteUntil;
         private static int _nearbyEnemies;
@@ -118,6 +119,13 @@ namespace LightsaberMod.Forms
                 Reset();
                 _appliedTo = player;
                 _nextSync = 0f;
+                _publishedForm = -1;
+            }
+
+            if (_publishedForm != _current)
+            {
+                Net.NetSync.PublishForm(player, _current);
+                _publishedForm = _current;
             }
 
             if (Time.time < _nextSync) return;

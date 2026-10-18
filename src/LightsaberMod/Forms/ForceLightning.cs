@@ -11,38 +11,31 @@ namespace LightsaberMod.Forms
     /// front, then chains to others nearby. Damage ticks five times a second and stamina
     /// drains for as long as the key is held.
     /// </summary>
+    /// <remarks>
+    /// The local client owns damage and stamina; the arcs, light and sound live in a
+    /// <see cref="LightningFx"/> on the caster, which other clients drive themselves after
+    /// being told the channel started (see <see cref="Net.NetSync"/>).
+    /// </remarks>
     internal static class ForceLightning
     {
-        private const float Range = 10f;
+        public const float Range = 10f;
+        public const int MaxTargets = 3;
+
         private const float ConeDegrees = 45f;
         private const float ChainRange = 5f;
-        private const int MaxTargets = 3;
         private const float TickSeconds = 0.2f;
-        private const float BoltRefreshSeconds = 0.05f;
-        private const int BoltPoints = 12;
 
-        private static readonly Color BoltColor = new Color(0.65f, 0.75f, 1f);
         private static readonly List<Character> Scratch = new List<Character>();
-        private static readonly List<Character> Targets = new List<Character>();
 
-        private static GameObject _fx;
-        private static LineRenderer[] _bolts;
-        private static Light _light;
-        private static AudioSource _sound;
-        private static Player _fxOwner;
-        private static float _nextTick, _nextBoltRefresh;
-        private static bool _active;
+        private static LightningFx _fx;
+        private static float _nextTick;
         private static bool _exhausted; // ran dry: wait for the key to be released before trying again
 
         /// <summary>Call every frame with whether the key is held.</summary>
         public static void Update(Player player, bool held)
         {
-            if (_active && (_fx == null || _fxOwner != player))
-            {
-                // Relogged or respawned mid-channel: the effects went with the old body.
-                _active = false;
-                Targets.Clear();
-            }
+            if (_fx != null && _fx.Caster != player)
+                _fx = null; // relogged or respawned: the effects went with the old body
 
             if (!held) _exhausted = false;
             if (!held || _exhausted || !CanChannel(player))
@@ -51,47 +44,37 @@ namespace LightsaberMod.Forms
                 return;
             }
 
-            if (!_active)
+            if (_fx == null || !_fx.Channeling)
             {
-                _active = true;
+                _fx = LightningFx.For(player);
+                _fx.Begin(computeTargets: false);
                 _nextTick = 0f;
-                EnsureFx(player);
-                _fx.SetActive(true);
-                _sound.volume = SaberAudio.Volume;
-                _sound.Play();
+                Net.NetSync.BroadcastLightning(player, true);
             }
+
+            if (Time.time < _nextTick) return;
+            _nextTick = Time.time + TickSeconds;
 
             SaberForm form = FormManager.Current;
-            if (Time.time >= _nextTick)
+            float cost = LightsaberPlugin.LightningStaminaPerSecond.Value * TickSeconds * form.ForceCost;
+            if (!player.HaveStamina(cost))
             {
-                _nextTick = Time.time + TickSeconds;
-                float cost = LightsaberPlugin.LightningStaminaPerSecond.Value * TickSeconds * form.ForceCost;
-                if (!player.HaveStamina(cost))
-                {
-                    player.Message(MessageHud.MessageType.Center, "Not enough stamina");
-                    _exhausted = true;
-                    Stop();
-                    return;
-                }
-                Compat.Call(player, "UseStamina", cost);
-
-                FindTargets(player);
-                Strike(player, form);
+                player.Message(MessageHud.MessageType.Center, "Not enough stamina");
+                _exhausted = true;
+                Stop();
+                return;
             }
+            Compat.Call(player, "UseStamina", cost);
 
-            if (Time.time >= _nextBoltRefresh)
-            {
-                _nextBoltRefresh = Time.time + BoltRefreshSeconds;
-                DrawBolts(player);
-            }
+            FindTargets(player, _fx.Targets);
+            Strike(player, form, _fx.Targets);
         }
 
         public static void Stop()
         {
-            if (!_active) return;
-            _active = false;
-            Targets.Clear();
-            if (_fx != null) _fx.SetActive(false);
+            if (_fx == null || !_fx.Channeling) return;
+            _fx.End();
+            Net.NetSync.BroadcastLightning(_fx.Caster, false);
         }
 
         private static bool CanChannel(Player player)
@@ -99,39 +82,39 @@ namespace LightsaberMod.Forms
             return player != null && !player.IsDead() && SaberFactory.IsSaber(player.GetCurrentWeapon()) && !SaberThrow.InFlight;
         }
 
-        private static void FindTargets(Player player)
+        /// <summary>Nearest enemy in front, then a chain of nearest neighbours. Also used by remote clients for the visuals.</summary>
+        public static void FindTargets(Player caster, List<Character> targets)
         {
-            Targets.Clear();
-            Vector3 origin = player.GetCenterPoint();
-            Vector3 forward = player.transform.forward;
+            targets.Clear();
+            Vector3 origin = caster.GetCenterPoint();
+            Vector3 forward = caster.transform.forward;
 
             Scratch.Clear();
             Character.GetCharactersInRange(origin, Range, Scratch);
             Character first = Scratch
-                .Where(c => IsValid(player, c))
+                .Where(c => IsValid(caster, c))
                 .Where(c => Vector3.Angle(forward, Flat(c.GetCenterPoint() - origin)) <= ConeDegrees / 2f)
                 .OrderBy(c => Vector3.Distance(origin, c.GetCenterPoint()))
                 .FirstOrDefault();
             if (first == null) return;
 
-            // Chain: each further arc jumps to the closest enemy not yet struck.
-            Targets.Add(first);
-            while (Targets.Count < MaxTargets)
+            targets.Add(first);
+            while (targets.Count < MaxTargets)
             {
-                Character from = Targets[Targets.Count - 1];
+                Character from = targets[targets.Count - 1];
                 Scratch.Clear();
                 Character.GetCharactersInRange(from.GetCenterPoint(), ChainRange, Scratch);
                 Character next = Scratch
-                    .Where(c => IsValid(player, c) && !Targets.Contains(c))
+                    .Where(c => IsValid(caster, c) && !targets.Contains(c))
                     .OrderBy(c => Vector3.Distance(from.GetCenterPoint(), c.GetCenterPoint()))
                     .FirstOrDefault();
                 if (next == null) break;
-                Targets.Add(next);
+                targets.Add(next);
             }
         }
 
-        private static bool IsValid(Player player, Character c) =>
-            c != null && c != player && !c.IsDead() && BaseAI.IsEnemy(player, c);
+        private static bool IsValid(Player caster, Character c) =>
+            c != null && c != caster && !c.IsDead() && BaseAI.IsEnemy(caster, c);
 
         private static Vector3 Flat(Vector3 v)
         {
@@ -139,15 +122,15 @@ namespace LightsaberMod.Forms
             return v;
         }
 
-        private static void Strike(Player player, SaberForm form)
+        private static void Strike(Player player, SaberForm form, List<Character> targets)
         {
             float damage = LightsaberPlugin.LightningDamage.Value * form.ForcePower * form.LightningPower;
             ForcePowers.Channeling = true;
             try
             {
-                for (int i = 0; i < Targets.Count; i++)
+                for (int i = 0; i < targets.Count; i++)
                 {
-                    Character target = Targets[i];
+                    Character target = targets[i];
                     var hit = new HitData();
                     // Each jump down the chain loses a quarter of its bite.
                     hit.m_damage.m_lightning = damage * Mathf.Pow(0.75f, i);
@@ -165,63 +148,138 @@ namespace LightsaberMod.Forms
                 ForcePowers.Channeling = false;
             }
         }
+    }
 
-        // ----- Visuals ------------------------------------------------------------------------
+    /// <summary>Arcs, flickering light and crackle for one caster. Lives on the caster's GameObject.</summary>
+    internal sealed class LightningFx : MonoBehaviour
+    {
+        private const float BoltRefreshSeconds = 0.05f;
+        private const float RemoteRetargetSeconds = 0.2f;
+        private const int BoltPoints = 12;
 
-        private static void EnsureFx(Player player)
+        private static readonly Color BoltColor = new Color(0.65f, 0.75f, 1f);
+        private static Material _material;
+
+        public readonly List<Character> Targets = new List<Character>();
+        public Player Caster { get; private set; }
+        public bool Channeling { get; private set; }
+
+        private LineRenderer[] _bolts;
+        private Light _light;
+        private AudioSource _sound;
+        private bool _computeTargets;
+        private float _nextBoltRefresh, _nextRetarget;
+
+        public static LightningFx For(Player caster)
         {
-            if (_fx != null && _fxOwner == player) return;
-            if (_fx != null) Object.Destroy(_fx);
+            LightningFx fx = caster.GetComponent<LightningFx>();
+            if (fx == null)
+            {
+                fx = caster.gameObject.AddComponent<LightningFx>();
+                fx.Caster = caster;
+            }
+            return fx;
+        }
 
-            _fxOwner = player;
-            _fx = new GameObject("force_lightning_fx");
-            _fx.transform.SetParent(player.transform, false);
+        /// <param name="computeTargets">True on other clients, which pick their own targets for the arcs.</param>
+        public void Begin(bool computeTargets)
+        {
+            EnsureParts();
+            _computeTargets = computeTargets;
+            Channeling = true;
+            _nextRetarget = 0f;
+            _sound.volume = SaberAudio.Volume;
+            _sound.Play();
+            _light.enabled = true;
+        }
 
-            Shader shader = Shader.Find("Legacy Shaders/Particles/Additive") ?? Shader.Find("Particles/Additive") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
-            var mat = new Material(shader) { color = BoltColor };
+        public void End()
+        {
+            Channeling = false;
+            Targets.Clear();
+            if (_bolts == null) return;
+            foreach (LineRenderer bolt in _bolts) bolt.enabled = false;
+            _light.enabled = false;
+            _sound.Stop();
+        }
 
-            _bolts = new LineRenderer[MaxTargets + 2];
+        private void LateUpdate()
+        {
+            if (!Channeling) return;
+            if (Caster == null || Caster.IsDead())
+            {
+                End();
+                return;
+            }
+
+            if (_computeTargets && Time.time >= _nextRetarget)
+            {
+                _nextRetarget = Time.time + RemoteRetargetSeconds;
+                ForceLightning.FindTargets(Caster, Targets);
+            }
+
+            if (Time.time >= _nextBoltRefresh)
+            {
+                _nextBoltRefresh = Time.time + BoltRefreshSeconds;
+                DrawBolts();
+            }
+        }
+
+        private void EnsureParts()
+        {
+            if (_bolts != null) return;
+
+            if (_material == null)
+            {
+                Shader shader = Shader.Find("Legacy Shaders/Particles/Additive") ?? Shader.Find("Particles/Additive") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
+                _material = new Material(shader) { color = BoltColor };
+            }
+
+            var root = new GameObject("force_lightning_fx");
+            root.transform.SetParent(transform, false);
+
+            _bolts = new LineRenderer[ForceLightning.MaxTargets + 2];
             for (int i = 0; i < _bolts.Length; i++)
             {
                 var go = new GameObject("bolt" + i);
-                go.transform.SetParent(_fx.transform, false);
+                go.transform.SetParent(root.transform, false);
                 LineRenderer line = go.AddComponent<LineRenderer>();
                 line.useWorldSpace = true;
                 line.positionCount = BoltPoints;
-                line.sharedMaterial = mat;
+                line.sharedMaterial = _material;
                 line.startColor = Color.white;
                 line.endColor = BoltColor;
                 line.widthMultiplier = 0.05f;
                 line.widthCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 0.4f));
                 line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 line.receiveShadows = false;
+                line.enabled = false;
                 _bolts[i] = line;
             }
 
             _light = new GameObject("lightning_light").AddComponent<Light>();
-            _light.transform.SetParent(_fx.transform, false);
+            _light.transform.SetParent(root.transform, false);
             _light.type = LightType.Point;
             _light.color = BoltColor;
             _light.range = 6f;
             _light.shadows = LightShadows.None;
+            _light.enabled = false;
 
-            _sound = _fx.AddComponent<AudioSource>();
+            _sound = root.AddComponent<AudioSource>();
             SaberAudio.Configure(_sound);
             _sound.clip = SaberAudio.Lightning;
             _sound.loop = true;
-
-            _fx.SetActive(false);
         }
 
-        private static Vector3 HandPosition(Player player)
+        private Vector3 HandPosition()
         {
-            Transform hand = Compat.GetField<Transform>(player.GetComponent<VisEquipment>(), "m_leftHand");
-            return hand != null ? hand.position : player.GetCenterPoint() + player.transform.forward * 0.5f;
+            Transform hand = Compat.GetField<Transform>(Caster.GetComponent<VisEquipment>(), "m_leftHand");
+            return hand != null ? hand.position : Caster.GetCenterPoint() + Caster.transform.forward * 0.5f;
         }
 
-        private static void DrawBolts(Player player)
+        private void DrawBolts()
         {
-            Vector3 hand = HandPosition(player);
+            Vector3 hand = HandPosition();
             _light.transform.position = hand;
             _light.intensity = Random.Range(1.5f, 3.5f);
 
@@ -229,16 +287,17 @@ namespace LightsaberMod.Forms
             Vector3 from = hand;
             foreach (Character target in Targets)
             {
-                if (target == null) continue;
+                if (target == null || used >= _bolts.Length) continue;
                 Vector3 to = target.GetCenterPoint();
                 Jag(_bolts[used++], from, to);
                 from = to;
             }
 
-            // Nothing to strike, or spare arcs: crackle out into the air in front.
-            while (used < _bolts.Length && (Targets.Count == 0 || used < Targets.Count + 1))
+            // Nothing to strike, or one spare arc: crackle out into the air in front.
+            int stray = Targets.Count == 0 ? 2 : 1;
+            for (int i = 0; i < stray && used < _bolts.Length; i++)
             {
-                Vector3 dir = Quaternion.Euler(Random.Range(-15f, 15f), Random.Range(-25f, 25f), 0f) * player.transform.forward;
+                Vector3 dir = Quaternion.Euler(Random.Range(-15f, 15f), Random.Range(-25f, 25f), 0f) * Caster.transform.forward;
                 Jag(_bolts[used++], hand, hand + dir * Random.Range(3f, 6f));
             }
 
