@@ -23,6 +23,7 @@ namespace LightsaberMod.Forms
         private static StatusEffect _applied;
         private static Player _appliedTo;
         private static int _publishedForm = -1;
+        private static bool _forceReapply;
         private static float _nextSync;
         private static float _riposteUntil;
         private static int _nearbyEnemies;
@@ -60,6 +61,16 @@ namespace LightsaberMod.Forms
                 ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(se, false));
                 Effects[form.Id] = se;
             }
+        }
+
+        /// <summary>Re-applies a form's movement and stamina stats to its status effect after a config change.</summary>
+        public static void RefreshStatusEffect(SaberForm form)
+        {
+            if (!Effects.TryGetValue(form.Id, out StatusEffect se)) return;
+            Compat.SetField(se, "m_speedModifier", form.MoveSpeed);
+            Compat.SetField(se, "m_staminaRegenMultiplier", form.StaminaRegen);
+            // The active copy on the player was cloned from this one; re-apply it to pick the change up.
+            if (_applied == se) { _forceReapply = true; _nextSync = 0f; }
         }
 
         private static Sprite BorrowIcon(string prefabName)
@@ -105,7 +116,7 @@ namespace LightsaberMod.Forms
         /// <summary>Forms unlock as the wielder's skill with the held saber's weapon type rises.</summary>
         public static bool IsUnlocked(Player player, SaberForm form, out float needed)
         {
-            needed = (form.Number - 1) * LightsaberPlugin.UnlockSkillStep.Value;
+            needed = LightsaberPlugin.FullPowers.Value ? 0f : (form.Number - 1) * LightsaberPlugin.UnlockSkillStep.Value;
             if (needed <= 0) return true;
 
             ItemDrop.ItemData weapon = player.GetCurrentWeapon();
@@ -143,7 +154,8 @@ namespace LightsaberMod.Forms
                 MovesetManager.Apply(player);
 
             StatusEffect wanted = armed && Effects.TryGetValue(Current.Id, out StatusEffect se) ? se : null;
-            if (wanted == _applied) return;
+            if (wanted == _applied && !_forceReapply) return;
+            _forceReapply = false;
 
             SEMan seman = player.GetSEMan();
             if (_applied != null)

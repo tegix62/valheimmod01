@@ -30,6 +30,10 @@ namespace LightsaberMod
         public static ConfigEntry<float> StanceIntensity;
         public static ConfigEntry<bool> Flourishes;
         public static ConfigEntry<bool> UseMocap;
+        public static ConfigEntry<bool> FullPowers;
+
+        /// <summary>A stamina cost, or nothing while Full Powers is on.</summary>
+        public static float Cost(float stamina) => FullPowers.Value ? 0f : stamina;
         public static ConfigEntry<Vector3> JarKaiGripRotation;
         public static ConfigEntry<float> ForceStaminaCost;
         public static ConfigEntry<float> ForceCooldown;
@@ -97,6 +101,10 @@ namespace LightsaberMod
             StanceIntensity = Config.Bind("Effects", "StanceIntensity", 1f,
                 new ConfigDescription("How strongly each form's stance is layered over the idle pose. 0 turns stances off. Tune poses with the lightsaber_pose console command.", new AcceptableValueRange<float>(0f, 1.5f)));
             Flourishes = Config.Bind("Effects", "Flourishes", true, "Whole-body flips and spins (Ataru's leap, spinning techniques).");
+            FullPowers = Config.Bind("Cheats", "FullPowers", false,
+                new ConfigDescription("All forms unlocked; Force powers, lightning, throw and leap cost no stamina and have no cooldown; lightning in any form. On a server only an admin's value counts.", null, synced));
+            Settings.ItemSettings.Bind(Config);
+            Settings.FormSettings.Bind(Config, synced);
             UseMocap = Config.Bind("Effects", "UseMotionCapture", true, "Play BVH motion-capture clips from the mocap folder (see docs/MOCAP.md), if any are installed.");
             JarKaiEnabled = Config.Bind("Forms", "JarKai", true,
                 new ConfigDescription("In Niman, draw a second lightsaber or shoto from your pack into an empty off hand.", null, synced));

@@ -57,7 +57,7 @@ namespace LightsaberMod.Forms
                 return;
 
             SaberForm form = FormManager.Current;
-            float cost = LightsaberPlugin.LeapStaminaCost.Value * form.LeapCost;
+            float cost = LightsaberPlugin.Cost(LightsaberPlugin.LeapStaminaCost.Value * form.LeapCost);
             if (!player.HaveStamina(cost))
             {
                 player.Message(MessageHud.MessageType.TopLeft, "Not enough stamina to leap");

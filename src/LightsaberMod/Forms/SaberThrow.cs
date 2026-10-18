@@ -51,7 +51,7 @@ namespace LightsaberMod.Forms
                 return;
             }
 
-            float cost = LightsaberPlugin.ThrowStaminaCost.Value;
+            float cost = LightsaberPlugin.Cost(LightsaberPlugin.ThrowStaminaCost.Value);
             if (!player.HaveStamina(cost))
             {
                 player.Message(MessageHud.MessageType.Center, "Not enough stamina");

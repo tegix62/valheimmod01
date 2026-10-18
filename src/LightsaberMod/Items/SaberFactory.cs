@@ -70,14 +70,9 @@ namespace LightsaberMod.Items
                 Name = "$item_kyberhilt",
                 Description = "$item_kyberhilt_desc",
                 // Mistlands tier: built at the Black Forge from refined eitr and a black core.
-                CraftingStation = CraftingStations.BlackForge,
-                MinStationLevel = 1,
-                Requirements = new[]
-                {
-                    new RequirementConfig("BlackMetal", 4),
-                    new RequirementConfig("Eitr", 2),
-                    new RequirementConfig("BlackCore", 1),
-                },
+                CraftingStation = CraftingStations.GetInternalName(Settings.ItemSettings.HiltStation),
+                MinStationLevel = Settings.ItemSettings.HiltStationLevel,
+                Requirements = Settings.ItemSettings.HiltRecipe.Select(i => new RequirementConfig(i.Item, i.Amount)).ToArray(),
             };
             var item = new CustomItem(HiltPrefab, "Iron", config);
             ItemManager.Instance.AddItem(item);
@@ -89,8 +84,8 @@ namespace LightsaberMod.Items
             {
                 Name = "$" + color.CrystalToken,
                 Description = "$" + color.CrystalToken + "_desc",
-                CraftingStation = CraftingStations.Forge,
-                MinStationLevel = 1,
+                CraftingStation = CraftingStations.GetInternalName(color.Station),
+                MinStationLevel = color.StationLevel,
                 Requirements = color.Attunement.Select(i => new RequirementConfig(i.Item, i.Amount)).ToArray(),
             };
 
@@ -106,16 +101,16 @@ namespace LightsaberMod.Items
             {
                 Name = "$" + token,
                 Description = "$" + token + "_desc",
-                CraftingStation = CraftingStations.BlackForge,
-                RepairStation = CraftingStations.BlackForge,
-                MinStationLevel = 2,
+                CraftingStation = CraftingStations.GetInternalName(hilt.Station),
+                RepairStation = CraftingStations.GetInternalName(hilt.Station),
+                MinStationLevel = hilt.StationLevel,
                 Requirements = new[]
-                {
-                    new RequirementConfig(HiltPrefab, hilt.Hilts, 0, true),
-                    new RequirementConfig(color.CrystalPrefab, hilt.Crystals, 0, true),
-                    new RequirementConfig("BlackMetal", 0, 4, true),
-                    new RequirementConfig("Eitr", 0, 2, true),
-                },
+                    {
+                        new RequirementConfig(HiltPrefab, hilt.Hilts, 0, true),
+                        new RequirementConfig(color.CrystalPrefab, hilt.Crystals, 0, true),
+                    }
+                    .Concat(hilt.UpgradeCost.Select(i => new RequirementConfig(i.Item, 0, i.Amount, true)))
+                    .ToArray(),
             };
 
             var item = new CustomItem(hilt.PrefabFor(color), hilt.BasePrefab, config);

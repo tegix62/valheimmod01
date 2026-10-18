@@ -37,7 +37,7 @@ namespace LightsaberMod.Forms
             }
 
             SaberForm form = FormManager.Current;
-            float cost = LightsaberPlugin.ForceStaminaCost.Value * form.ForceCost;
+            float cost = LightsaberPlugin.Cost(LightsaberPlugin.ForceStaminaCost.Value * form.ForceCost);
             if (!player.HaveStamina(cost))
             {
                 if (!quiet) player.Message(MessageHud.MessageType.Center, "Not enough stamina");
@@ -82,7 +82,7 @@ namespace LightsaberMod.Forms
             }
 
             Compat.Call(player, "UseStamina", cost);
-            _readyAt = Time.time + LightsaberPlugin.ForceCooldown.Value;
+            _readyAt = Time.time + (LightsaberPlugin.FullPowers.Value ? 0f : LightsaberPlugin.ForceCooldown.Value);
 
             string power = pull ? "Force Pull" : "Force Push";
             player.Message(MessageHud.MessageType.TopLeft, affected > 0 ? $"{power}! ({affected})" : power);

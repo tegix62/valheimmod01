@@ -19,6 +19,9 @@ namespace LightsaberMod.Items
         public float ParryBonus;       // timed block multiplier
         public int Hilts;              // emitter hilts consumed
         public int Crystals;           // kyber crystals consumed
+        public Ingredient[] UpgradeCost = { new Ingredient("BlackMetal", 4), new Ingredient("Eitr", 2) };
+        public string Station = "BlackForge";
+        public int StationLevel = 2;
 
         public static readonly HiltType[] All =
         {

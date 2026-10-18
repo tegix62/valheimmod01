@@ -18,6 +18,8 @@ namespace LightsaberMod.Items
         public Color Blade;
         public Color Glow;           // colour of the point light (differs from the blade for the Darksaber)
         public Ingredient[] Attunement;
+        public string Station = "Forge";
+        public int StationLevel = 1;
 
         public static readonly KyberColor[] All =
         {

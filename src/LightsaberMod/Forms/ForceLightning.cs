@@ -44,7 +44,7 @@ namespace LightsaberMod.Forms
                 _warned = false;
             }
 
-            if (held && LightsaberPlugin.LightningDarkSideOnly.Value && !FormManager.Current.DarkSide)
+            if (held && LightsaberPlugin.LightningDarkSideOnly.Value && !FormManager.Current.DarkSide && !LightsaberPlugin.FullPowers.Value)
             {
                 if (!_warned)
                     player.Message(MessageHud.MessageType.Center, "Force lightning answers only to the dark side (Form VII: Juyo)");
@@ -71,7 +71,7 @@ namespace LightsaberMod.Forms
             _nextTick = Time.time + TickSeconds;
 
             SaberForm form = FormManager.Current;
-            float cost = LightsaberPlugin.LightningStaminaPerSecond.Value * TickSeconds * form.ForceCost;
+            float cost = LightsaberPlugin.Cost(LightsaberPlugin.LightningStaminaPerSecond.Value * TickSeconds * form.ForceCost);
             if (!player.HaveStamina(cost))
             {
                 player.Message(MessageHud.MessageType.Center, "Not enough stamina");
