@@ -40,6 +40,9 @@ namespace LightsaberMod.Forms
         public float ForcePower = 1f;
         public float ForceCost = 1f;
         public float ThrowPower = 1f;     // saber throw damage
+        public float LightningPower = 1f; // Force lightning damage (the dark side's gift)
+        public float LeapPower = 1f;      // Force leap height/distance and landing strike
+        public float LeapCost = 1f;
 
         public string StatusEffectName => "SE_LightsaberForm_" + Id;
 
@@ -72,8 +75,8 @@ namespace LightsaberMod.Forms
             {
                 Number = 4, Id = "ataru", Name = "Ataru", Epithet = "Way of the Hawk-Bat",
                 Summary = "Acrobatic aggression. Faster blades, higher leaps, heavy stamina use.",
-                Tooltip = "+20% attack speed\n+15% damage\n+15% move speed\nHigher jumps\n+25% attack stamina\n+10% damage taken",
-                AttackSpeed = 1.2f, DamageDealt = 1.15f, MoveSpeed = 0.15f, JumpBoost = 0.5f,
+                Tooltip = "+20% attack speed\n+15% damage\n+15% move speed\nHigher jumps\nForce Leap 40% stronger, half cost\n+25% attack stamina\n+10% damage taken",
+                AttackSpeed = 1.2f, DamageDealt = 1.15f, MoveSpeed = 0.15f, JumpBoost = 0.5f, LeapPower = 1.4f, LeapCost = 0.5f,
                 AttackStamina = 1.25f, DamageTaken = 1.1f,
             },
             new SaberForm
@@ -96,8 +99,8 @@ namespace LightsaberMod.Forms
             {
                 Number = 7, Id = "juyo", Name = "Juyo / Vaapad", Epithet = "Way of the Vornskr",
                 Summary = "Ferocious, unpredictable, and fed by the fury of battle.",
-                Tooltip = "+40% damage, +15% attack speed\n8% of damage dealt heals you\n+25% stagger\n+25% damage taken\n-15% stamina regen",
-                DamageDealt = 1.4f, AttackSpeed = 1.15f, Lifesteal = 0.08f, Stagger = 1.25f,
+                Tooltip = "+40% damage, +15% attack speed\n8% of damage dealt heals you\nForce lightning 60% stronger\n+25% stagger\n+25% damage taken\n-15% stamina regen",
+                DamageDealt = 1.4f, AttackSpeed = 1.15f, Lifesteal = 0.08f, Stagger = 1.25f, LightningPower = 1.6f,
                 DamageTaken = 1.25f, StaminaRegen = 0.85f,
             },
         };

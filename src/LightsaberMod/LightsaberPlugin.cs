@@ -30,12 +30,16 @@ namespace LightsaberMod
         public static ConfigEntry<bool> ShowTrails;
         public static ConfigEntry<float> ThrowStaminaCost;
         public static ConfigEntry<float> ThrowRange;
+        public static ConfigEntry<float> LightningDamage;
+        public static ConfigEntry<float> LightningStaminaPerSecond;
+        public static ConfigEntry<float> LeapStaminaCost;
 
         private ConfigEntry<KeyboardShortcut> _nextFormKey;
         private ConfigEntry<KeyboardShortcut> _prevFormKey;
         private ConfigEntry<KeyboardShortcut> _forcePushKey;
         private ConfigEntry<KeyboardShortcut> _forcePullKey;
         private ConfigEntry<KeyboardShortcut> _throwKey;
+        private ConfigEntry<KeyboardShortcut> _lightningKey;
 
         private Harmony _harmony;
 
@@ -81,6 +85,13 @@ namespace LightsaberMod
             ThrowRange = Config.Bind("Saber Throw", "Range", 14f,
                 new ConfigDescription("How far the thrown saber flies before returning, in metres.", new AcceptableValueRange<float>(4f, 30f), synced));
 
+            LightningDamage = Config.Bind("Force", "LightningDamage", 6f,
+                new ConfigDescription("Lightning damage per tick (5 ticks a second) to the first target, before form modifiers.", new AcceptableValueRange<float>(0f, 50f), synced));
+            LightningStaminaPerSecond = Config.Bind("Force", "LightningStaminaPerSecond", 15f,
+                new ConfigDescription("Stamina drained per second while channelling Force lightning.", new AcceptableValueRange<float>(0f, 100f), synced));
+            LeapStaminaCost = Config.Bind("Force", "LeapStaminaCost", 15f,
+                new ConfigDescription("Stamina cost of a Force Leap (press jump in mid-air).", new AcceptableValueRange<float>(0f, 100f), synced));
+
             SoundVolume = Config.Bind("Effects", "SoundVolume", 0.6f,
                 new ConfigDescription("Volume of lightsaber hum, ignition and clash sounds. 0 mutes them.", new AcceptableValueRange<float>(0f, 1f)));
             ShowTrails = Config.Bind("Effects", "ShowTrails", true, "Draw glowing trails behind fast swings.");
@@ -90,6 +101,7 @@ namespace LightsaberMod
             _forcePushKey = Config.Bind("Controls", "ForcePush", new KeyboardShortcut(KeyCode.G), "Force Push the enemies in front of you.");
             _forcePullKey = Config.Bind("Controls", "ForcePull", new KeyboardShortcut(KeyCode.G, KeyCode.LeftShift), "Force Pull the enemies in front of you.");
 
+            _lightningKey = Config.Bind("Controls", "ForceLightning", new KeyboardShortcut(KeyCode.R), "Hold to channel Force lightning.");
             _throwKey = Config.Bind("Controls", "SaberThrow", new KeyboardShortcut(KeyCode.T), "Throw your lightsaber; it returns to your hand.");
 
             SavedForm = Config.Bind("State", "LastForm", 0, "Last selected form (0 = Shii-Cho ... 6 = Juyo). Managed by the mod.");
@@ -112,11 +124,22 @@ namespace LightsaberMod
         private void Update()
         {
             Player player = Player.m_localPlayer;
-            if (player == null || player.IsDead()) return;
+            if (player == null || player.IsDead())
+            {
+                ForceLightning.Stop();
+                return;
+            }
 
             FormManager.Tick(player);
 
-            if (!player.TakeInput()) return;
+            if (!player.TakeInput())
+            {
+                ForceLightning.Stop();
+                return;
+            }
+
+            ForceLightning.Update(player, _lightningKey.Value.IsPressed());
+            ForceLeap.Update(player);
 
             // Shifted variants first, so rebinding either key to a plain one can't fire both.
             if (_prevFormKey.Value.IsDown()) FormManager.Cycle(player, -1);

@@ -47,6 +47,28 @@ namespace LightsaberMod.Util
             return method.Invoke(target, full);
         }
 
+        /// <summary>Calls a static method on a game type looked up by name, e.g. ZInput.GetButtonDown.</summary>
+        public static object CallStatic(string typeName, string name, params object[] args)
+        {
+            string key = "static:" + typeName + "::" + name + "/" + args.Length;
+            if (!MethodCache.TryGetValue(key, out MethodInfo method))
+            {
+                Type type = AccessTools.TypeByName(typeName);
+                method = type == null ? null : AccessTools.GetDeclaredMethods(type)
+                    .FirstOrDefault(m => m.IsStatic && m.Name == name && Accepts(m.GetParameters(), args));
+                MethodCache[key] = method;
+                if (method == null)
+                    Jotunn.Logger.LogWarning($"Compat: no usable static {typeName}.{name}");
+            }
+
+            if (method == null) return null;
+            ParameterInfo[] ps = method.GetParameters();
+            object[] full = new object[ps.Length];
+            for (int i = 0; i < ps.Length; i++)
+                full[i] = i < args.Length ? args[i] : DefaultFor(ps[i]);
+            return method.Invoke(null, full);
+        }
+
         public static T GetField<T>(object target, string name, T fallback = default)
         {
             FieldInfo field = FindField(target?.GetType(), name);

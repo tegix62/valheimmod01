@@ -68,11 +68,13 @@ If a donor weapon is missing, the next one in its list is used, and failing that
 
 ### The Force
 
-These only work with a lightsaber drawn. They share a 4 s cooldown and cost 25 stamina before form modifiers.
+These only work with a lightsaber drawn. Push and Pull share a 4 s cooldown and cost 25 stamina before form modifiers. Niman makes every Force power stronger and cheaper.
 
 * **G**: Force Push. A 70° cone out to 9 m that knocks back and staggers enemies.
 * **Shift+G**: Force Pull. Drags enemies in that cone toward you.
 * **T**: Saber Throw. The blade spins out along your aim (14 m, 20 stamina), cuts every enemy it passes on the way out *and* on the way back, then returns to your hand. It turns back early if it hits a wall. Shien / Djem So throws hit 50% harder. You can't swing while it's in flight.
+* **Hold R**: Force Lightning. Arcs from your off hand into the nearest enemy in front (10 m), then chains to up to two more within 5 m, each jump weaker than the last. It deals lightning damage five times a second and drains 15 stamina per second. Juyo / Vaapad lightning is 60% stronger. When there's nothing to hit, the arcs crackle into the air.
+* **Jump again in mid-air**: Force Leap. Launches you forward and up (15 stamina). Landing from a leap triggers the **Hawk-Bat Dive**, a ground slam that damages and knocks back every enemy within 3.5 m. Leaps never cause fall damage. Ataru leaps 40% further, slams 40% harder and pays half the stamina.
 
 All keys, costs and balance values are in `BepInEx/config/tegix62.LightsaberMod.cfg`. Form and Force settings sync from the server's admin config.
 
@@ -107,6 +109,8 @@ To package for Thunderstore, zip `Thunderstore/manifest.json`, `Thunderstore/ico
 | `Forms/MovesetManager.cs` | Builds those attacks and swaps them onto the held saber |
 | `Forms/ForcePowers.cs` | Push and Pull |
 | `Forms/SaberThrow.cs` | The thrown, returning saber |
+| `Forms/ForceLightning.cs` | Channelled, chaining lightning and its arcs |
+| `Forms/ForceLeap.cs` | Mid-air leap and landing slam |
 | `Items/SaberBlade.cs` | Per-model ignition, hum, swing trails and retract |
 | `Items/SaberAudio.cs` | Procedurally generated sounds |
 | `Patches/CombatPatches.cs` | Harmony hooks: outgoing damage (`Character.Damage`), incoming damage and deflection (`Character.RPC_Damage`), blocks (`Humanoid.BlockAttack`), attack stamina (`Attack.GetAttackStamina`), attack speed (`CharacterAnimEvent`) |

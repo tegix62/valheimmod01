@@ -12,7 +12,7 @@ namespace LightsaberMod.Items
     {
         private const int Rate = 44100;
 
-        private static AudioClip _hum, _ignite, _retract, _clash;
+        private static AudioClip _hum, _ignite, _retract, _clash, _lightning;
         private static AudioMixerGroup _sfxGroup;
         private static bool _searchedGroup;
 
@@ -22,6 +22,7 @@ namespace LightsaberMod.Items
         public static AudioClip Ignite => _ignite ? _ignite : _ignite = MakeSweep("saber_ignite", 0.45f, 55f, 190f, rising: true);
         public static AudioClip Retract => _retract ? _retract : _retract = MakeSweep("saber_retract", 0.35f, 190f, 50f, rising: false);
         public static AudioClip Clash => _clash ? _clash : _clash = MakeClash();
+        public static AudioClip Lightning => _lightning ? _lightning : _lightning = MakeLightning();
 
         /// <summary>
         /// Valheim's SFX mixer group, borrowed from any loaded vanilla sound so the game's
@@ -123,6 +124,31 @@ namespace LightsaberMod.Items
                 data[i] = (hiss * 0.35f + crackle * 0.9f + zap * 0.3f) * Mathf.Exp(-k * 7f) * 0.7f;
             }
             return Clip("saber_clash", data);
+        }
+
+        private static AudioClip MakeLightning()
+        {
+            // One second of buzzing electrical crackle, cross-faded at the seam so it loops.
+            int n = Rate;
+            var data = new float[n];
+            var rng = new System.Random(31);
+            float snap = 0f;
+            for (int i = 0; i < n; i++)
+            {
+                float t = (float)i / Rate;
+                if (rng.NextDouble() < 0.004) snap = 1f;
+                snap *= 0.995f;
+                float buzz = Mathf.Sign(Mathf.Sin(2f * Mathf.PI * 120f * t)) * 0.18f;
+                float hiss = ((float)rng.NextDouble() * 2f - 1f) * (0.25f + snap * 0.75f);
+                data[i] = (buzz + hiss) * 0.55f;
+            }
+            int fade = Rate / 20;
+            for (int i = 0; i < fade; i++)
+            {
+                float k = (float)i / fade;
+                data[i] = data[i] * k + data[n - fade + i] * (1f - k);
+            }
+            return Clip("force_lightning", data);
         }
 
         private static AudioClip Clip(string name, float[] data)
