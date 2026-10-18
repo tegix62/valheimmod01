@@ -1,0 +1,114 @@
+using BepInEx;
+using BepInEx.Configuration;
+using HarmonyLib;
+using Jotunn.Managers;
+using Jotunn.Utils;
+using LightsaberMod.Forms;
+using LightsaberMod.Items;
+using UnityEngine;
+
+namespace LightsaberMod
+{
+    [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
+    [BepInDependency(Jotunn.Main.ModGuid)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    internal class LightsaberPlugin : BaseUnityPlugin
+    {
+        public const string PluginGuid = "tegix62.LightsaberMod";
+        public const string PluginName = "LightsaberMod";
+        public const string PluginVersion = "0.1.0";
+
+        public static ConfigEntry<float> DamageScale;
+        public static ConfigEntry<bool> UseDurability;
+        public static ConfigEntry<float> UnlockSkillStep;
+        public static ConfigEntry<float> LifestealCap;
+        public static ConfigEntry<float> ForceStaminaCost;
+        public static ConfigEntry<float> ForceCooldown;
+        public static ConfigEntry<int> SavedForm;
+
+        private ConfigEntry<KeyboardShortcut> _nextFormKey;
+        private ConfigEntry<KeyboardShortcut> _prevFormKey;
+        private ConfigEntry<KeyboardShortcut> _forcePushKey;
+        private ConfigEntry<KeyboardShortcut> _forcePullKey;
+
+        private Harmony _harmony;
+
+        private void Awake()
+        {
+            BindConfig();
+            FormManager.Init(SavedForm.Value);
+            SaberFactory.AddTranslations(LocalizationManager.Instance.GetLocalization());
+
+            _harmony = new Harmony(PluginGuid);
+            _harmony.PatchAll(typeof(LightsaberPlugin).Assembly);
+
+            PrefabManager.OnVanillaPrefabsAvailable += OnVanillaPrefabsAvailable;
+            ItemManager.OnItemsRegistered += OnItemsRegistered;
+
+            Jotunn.Logger.LogInfo($"{PluginName} {PluginVersion} loaded. May the Force be with you.");
+        }
+
+        private void BindConfig()
+        {
+            // Form and Force settings are read live, so the server's values win once connected.
+            var synced = new ConfigurationManagerAttributes { IsAdminOnly = true };
+
+            // Item stats are baked into the prefabs at startup, before any server sync could
+            // arrive, so these stay local. Keep them identical across players.
+            DamageScale = Config.Bind("Balance", "DamageScale", 1f,
+                new ConfigDescription("Multiplier on all lightsaber base damage. Restart required.", new AcceptableValueRange<float>(0.1f, 5f)));
+            UseDurability = Config.Bind("Balance", "UseDurability", false,
+                "If false, lightsabers never wear out. Restart required.");
+            UnlockSkillStep = Config.Bind("Forms", "UnlockSkillStep", 5f,
+                new ConfigDescription("Form N unlocks at weapon skill (N-1) x this value. 0 unlocks all forms immediately.", new AcceptableValueRange<float>(0f, 15f), synced));
+            LifestealCap = Config.Bind("Forms", "VaapadLifestealCap", 12f,
+                new ConfigDescription("Maximum health Juyo/Vaapad can restore from a single hit.", new AcceptableValueRange<float>(0f, 100f), synced));
+            ForceStaminaCost = Config.Bind("Force", "StaminaCost", 25f,
+                new ConfigDescription("Stamina cost of Force Push/Pull before form modifiers.", new AcceptableValueRange<float>(0f, 100f), synced));
+            ForceCooldown = Config.Bind("Force", "Cooldown", 4f,
+                new ConfigDescription("Seconds between Force powers.", new AcceptableValueRange<float>(0f, 60f), synced));
+
+            _nextFormKey = Config.Bind("Controls", "NextForm", new KeyboardShortcut(KeyCode.H), "Switch to the next lightsaber form.");
+            _prevFormKey = Config.Bind("Controls", "PreviousForm", new KeyboardShortcut(KeyCode.H, KeyCode.LeftShift), "Switch to the previous lightsaber form.");
+            _forcePushKey = Config.Bind("Controls", "ForcePush", new KeyboardShortcut(KeyCode.G), "Force Push the enemies in front of you.");
+            _forcePullKey = Config.Bind("Controls", "ForcePull", new KeyboardShortcut(KeyCode.G, KeyCode.LeftShift), "Force Pull the enemies in front of you.");
+
+            SavedForm = Config.Bind("State", "LastForm", 0, "Last selected form (0 = Shii-Cho ... 6 = Juyo). Managed by the mod.");
+        }
+
+        private void OnVanillaPrefabsAvailable()
+        {
+            SaberFactory.RegisterItems();
+            FormManager.RegisterStatusEffects();
+            PrefabManager.OnVanillaPrefabsAvailable -= OnVanillaPrefabsAvailable;
+        }
+
+        private void OnItemsRegistered()
+        {
+            SaberFactory.RenderIcons();
+            ItemManager.OnItemsRegistered -= OnItemsRegistered;
+        }
+
+        private void Update()
+        {
+            Player player = Player.m_localPlayer;
+            if (player == null || player.IsDead()) return;
+
+            FormManager.Tick(player);
+
+            if (!player.TakeInput()) return;
+
+            // Shifted variants first, so rebinding either key to a plain one can't fire both.
+            if (_prevFormKey.Value.IsDown()) FormManager.Cycle(player, -1);
+            else if (_nextFormKey.Value.IsDown()) FormManager.Cycle(player, +1);
+
+            if (_forcePullKey.Value.IsDown()) ForcePowers.Pull(player);
+            else if (_forcePushKey.Value.IsDown()) ForcePowers.Push(player);
+        }
+
+        private void OnDestroy()
+        {
+            _harmony?.UnpatchSelf();
+        }
+    }
+}
